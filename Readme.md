@@ -1,7 +1,7 @@
 # Личный проект «Кексобукинг» [![Build status][travis-image]][travis-url]
 
-* Студент: [Сергей Дербенцев](https://up.htmlacademy.ru/javascript/19/user/1072419).
-* Наставник: `Неизвестно`.
+* Студент: [Сергей Дербенцев](https://htmlacademy.ru/profile/id1072419).
+* Наставник: [Артём Рудов](https://htmlacademy.ru/profile/artrudov).
 
 ---
 
