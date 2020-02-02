@@ -12,9 +12,10 @@ var OFFER_PHOTOS = ['http://o0.github.io/assets/images/tokyo/hotel1.jpg', 'http:
 var offers = [];
 
 var map = document.querySelector('.map');
+var pinList = map.querySelector('.map__pins');
 var pinTemplate = document.querySelector('#pin')
   .content
-  .querySelector('map__pin');
+  .querySelector('.map__pin');
 
 /**
  * Определяем случайное целое число
@@ -25,15 +26,16 @@ var randomNumber = function (min, max) {
   return Math.round(Math.random() * (max - min) + min);
 };
 
-var locationX = randomNumber(0, MAP_WIDTH);
-var locationY = randomNumber(130, 630);
-
 /**
  * Создаем и добавляем в массив элемент-объявление
  * @return {void}
  */
 var createOffers = function () {
+
   for (var i = 0; i < OFFER_COUNT; i++) {
+    var locationX = randomNumber(0, MAP_WIDTH);
+    var locationY = randomNumber(130, 630);
+
     offers.push({
       'author': {
         'avatar': 'img/avatars/0' + i + '.png'
@@ -48,7 +50,7 @@ var createOffers = function () {
         'checkin': CHECK_TIME[randomNumber(0, 2)],
         'checkout': CHECK_TIME[randomNumber(0, 2)],
         'features': OFFER_FEATURES[randomNumber(0, 5)],
-        'description': "строка с описанием",
+        'description': 'строка с описанием ' + i,
         'photos': OFFER_PHOTOS[randomNumber(0, 2)]
       },
       'location': {
@@ -63,12 +65,12 @@ var createOffers = function () {
  * Копируем вёрстку метки объявления из шаблона
  * @return {object} Возвращаем объект-вёрстку объявления (метка на карте)
  */
-var renderOffer = function (item) {
+var renderOffer = function (item, i) {
   var offerElement = pinTemplate.cloneNode(true);
   var offerImage = offerElement.querySelector('img');
 
-  offerElement.style.left = locationX + PIN_SIZE + 'px';
-  offerElement.style.top = locationY + PIN_SIZE + 'px';
+  offerElement.style.left = item.location.x + PIN_SIZE + 'px';
+  offerElement.style.top = item.location.y + PIN_SIZE + 'px';
 
   offerImage.style.src = item.author.avatar;
   offerImage.style.alt = item.offer.title;
@@ -83,9 +85,11 @@ var renderOffer = function (item) {
 var offersAdd = function () {
   var fragment = document.createDocumentFragment();
 
-  offers.forEach(function (item) {
-    fragment.appendChild(renderOffer(item));
-  })
+  offers.forEach(function (item, i) {
+    fragment.appendChild(renderOffer(item, i));
+  });
+
+  pinList.appendChild(fragment);
 };
 
 map.classList.remove('map--faded');
