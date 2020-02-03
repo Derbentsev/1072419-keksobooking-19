@@ -27,6 +27,11 @@ var pinTemplate = document.querySelector('#pin')
   .content
   .querySelector('.map__pin');
 
+var cardList = map.querySelector('.map__filters-container');
+var cardTemplate = document.querySelector('#card')
+  .content
+  .querySelector('map__card');
+
 /**
  * Определяем случайное целое число
  * @param {number} min - Минимальное целое число
@@ -142,6 +147,69 @@ var renderPins = function (offers) {
   pinList.appendChild(fragment);
 };
 
+/**
+ * Копируем вёрстку карточки объявления и задаём ей свои параметры
+ * @param {object} item - Элемент из массива с предложениями по сдаче недвижимости
+ * @return {object} Карточка объявления
+ */
+var renderCard = function (item) {
+  var cardElement = cardTemplate.cloneNode(true);
+  cardElement.querySelector('.popup__title').textContent = item.offer.title;
+  cardElement.querySelector('.popup__text--address').textContent = item.offer.address;
+  cardElement.querySelector('.popup__text--price').textContent = item.offer.price + '₽/ночь';
+
+  var cardType = cardElement.querySelector('.popup__type');
+  switch (item.offer.type) {
+    case 'flat':
+      cardType.textContent = 'Квартира';
+      break;
+    case 'bungalo':
+      cardType.textContent = 'Бунгало';
+      break;
+    case 'house':
+      cardType.textContent = 'Дом';
+      break;
+    case 'palace':
+      cardType.textContent = 'Дворец';
+      break;
+  }
+
+  cardElement.querySelector('.popup__text--capacity').textContent = item.offer.rooms + ' комнаты для' + item.offer.guests + ' гостей';
+  cardElement.querySelector('.popup__text--time').textContent = 'Заезд после ' + item.offer.checkin + ', выезд до ' + item.offer.checkout;
+
+  var textFeatures;
+  item.features.forEach(function (feature) {
+    textFeatures = textFeatures + ', ' + feature;
+  });
+  cardElement.querySelector('.popup__features').textContent = textFeatures;
+
+  cardElement.querySelector('.popup__description').textContent = item.offer.description;
+
+  // .popup__photos
+  // Если данных для заполнения не хватает, соответствующий блок в карточке скрывается
+
+  cardElement.querySelector('.popup__avatar').src = item.author.avatar;
+
+  return cardElement;
+};
+
+/**
+ * Формируем и вставляем вёрстку карточек - предложений о сдаче
+ * @param {object} offers - Массив с информацией по объявлениям
+ * @return {void}
+ */
+var renderCards = function (offers) {
+  var fragment = document.createDocumentFragment();
+
+  offers.forEach(function (item) {
+    fragment.appendChild(renderCard(item));
+  });
+
+  cardList.insertAdjacentElement('beforeBegin', fragment);
+};
+
 map.classList.remove('map--faded');
 var offers = createPins();
 renderPins(offers);
+
+renderCards(offers);
