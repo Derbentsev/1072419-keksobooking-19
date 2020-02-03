@@ -1,15 +1,20 @@
 'use strict';
 
 var OFFER_COUNT = 8;
-var MAP_WIDTH = 1200;
-var PIN_SIZE = 65;
+var MAP_X_MIN = 0;
+var MAP_X_MAX = 1200;
+var MAP_Y_MIN = 130;
+var MAP_Y_MAX = 630;
+var PIN_WIDTH = 70;
+var PIN_HEIGHT = 50;
+var MIN_PRICE = 0;
 var MAX_PRICE = 9000;
 var MIN_ROOMS = 1;
 var MAX_ROOMS = 4;
 var MIN_GUESTS = 1;
 var MAX_GUESTS = 5;
 
-var AVATAR_PATH = 'img/avatars/0';
+var AVATAR_PATH = 'img/avatars/user0';
 
 var OFFER_TYPE = ['palace', 'flat', 'house', 'bungalo'];
 var CHECK_TIME = ['12:00', '13:00', '14:00'];
@@ -59,8 +64,8 @@ var generateArray = function (arr) {
  * @return {object} Объявление с заполненными данными по объекту сдачи
  */
 var createOffer = function (i) {
-  var locationX = getRandomNumber(0, MAP_WIDTH);
-  var locationY = getRandomNumber(130, 630);
+  var locationX = getRandomNumber(MAP_X_MIN, MAP_X_MAX);
+  var locationY = getRandomNumber(MAP_Y_MIN, MAP_Y_MAX);
 
   var offer = {
     'author': {
@@ -69,7 +74,7 @@ var createOffer = function (i) {
     'offer': {
       'title': 'заголовок предложения ' + i,
       'address': locationX + ',' + locationY,
-      'price': [getRandomNumber(0, MAX_PRICE)],
+      'price': [getRandomNumber(MIN_PRICE, MAX_PRICE)],
       'type': OFFER_TYPE[getRandomNumber(0, OFFER_TYPE.length - 1)],
       'rooms': getRandomNumber(MIN_ROOMS, MAX_ROOMS),
       'guests': getRandomNumber(MIN_GUESTS, MAX_GUESTS),
@@ -96,7 +101,7 @@ var createPins = function () {
   var pins = [];
 
   for (var i = 0; i < OFFER_COUNT; i++) {
-    pins.push(createOffer(i));
+    pins.push(createOffer(i + 1));
   }
 
   return pins;
@@ -111,11 +116,13 @@ var renderPin = function (item) {
   var pinElement = pinTemplate.cloneNode(true);
   var pinImage = pinElement.querySelector('img');
 
-  pinElement.style.left = item.location.x + PIN_SIZE + 'px';
-  pinElement.style.top = item.location.y + PIN_SIZE + 'px';
+  pinElement.style.left = item.location.x + PIN_WIDTH + 'px';
+  pinElement.style.top = item.location.y + PIN_HEIGHT + 'px';
 
   pinImage.style.src = item.author.avatar;
   pinImage.style.alt = item.offer.title;
+
+  pinImage.src = item.author.avatar;
 
   return pinElement;
 };
