@@ -3,13 +3,18 @@
 var OFFER_COUNT = 8;
 var MAP_WIDTH = 1200;
 var PIN_SIZE = 65;
+var MAX_PRICE = 9000;
+var MIN_ROOMS = 1;
+var MAX_ROOMS = 4;
+var MIN_GUESTS = 1;
+var MAX_GUESTS = 5;
+
+var AVATAR_PATH = 'img/avatars/0';
 
 var OFFER_TYPE = ['palace', 'flat', 'house', 'bungalo'];
 var CHECK_TIME = ['12:00', '13:00', '14:00'];
 var OFFER_FEATURES = ['wifi', 'dishwasher', 'parking', 'washer', 'elevator', 'conditioner'];
 var OFFER_PHOTOS = ['http://o0.github.io/assets/images/tokyo/hotel1.jpg', 'http://o0.github.io/assets/images/tokyo/hotel2.jpg', 'http://o0.github.io/assets/images/tokyo/hotel3.jpg'];
-
-var offers = [];
 
 var map = document.querySelector('.map');
 var pinList = map.querySelector('.map__pins');
@@ -19,79 +24,117 @@ var pinTemplate = document.querySelector('#pin')
 
 /**
  * Определяем случайное целое число
+ * @param {number} min - Минимальное целое число
  * @param {number} max - Максимальное целое число
  * @return {number} Случайное целое число
  */
-var randomNumber = function (min, max) {
+var getRandomNumber = function (min, max) {
   return Math.round(Math.random() * (max - min) + min);
 };
 
 /**
- * Создаем и добавляем в массив элемент-объявление
- * @return {void}
+ * Формируем массив из случайных элементов заданного массива
+ * @param {object} arr - Массив, из которого будем выбирать случайные элементы
+ * @return {object} Случайный массив из преимуществ
  */
-var createOffers = function () {
+var generateArray = function (arr) {
+  var arrNew = [];
+
+  arr.forEach(function (item) {
+    if (getRandomNumber(0, 1) === 1) {
+      arrNew.push(item);
+    }
+  });
+
+  if (arrNew.length === 0) {
+    arrNew.push(arr[getRandomNumber(0, arr.length - 1)]);
+  }
+
+  return arrNew;
+};
+
+/**
+ * Создаем элемент-объявление
+ * @param {number} i - Номер объявления
+ * @return {object} Объявление с заполненными данными по объекту сдачи
+ */
+var createOffer = function (i) {
+  var locationX = getRandomNumber(0, MAP_WIDTH);
+  var locationY = getRandomNumber(130, 630);
+
+  var offer = {
+    'author': {
+      'avatar': AVATAR_PATH + i + '.png'
+    },
+    'offer': {
+      'title': 'заголовок предложения ' + i,
+      'address': locationX + ',' + locationY,
+      'price': [getRandomNumber(0, MAX_PRICE)],
+      'type': OFFER_TYPE[getRandomNumber(0, OFFER_TYPE.length - 1)],
+      'rooms': getRandomNumber(MIN_ROOMS, MAX_ROOMS),
+      'guests': getRandomNumber(MIN_GUESTS, MAX_GUESTS),
+      'checkin': CHECK_TIME[getRandomNumber(0, CHECK_TIME.length - 1)],
+      'checkout': CHECK_TIME[getRandomNumber(0, CHECK_TIME.length - 1)],
+      'features': generateArray(OFFER_FEATURES),
+      'description': 'строка с описанием ' + i,
+      'photos': generateArray(OFFER_PHOTOS)
+    },
+    'location': {
+      'x': locationX,
+      'y': locationY
+    }
+  };
+
+  return offer;
+};
+
+/**
+ * Добавляем элемент-объявление в массив
+ * @return {object} Возвращаем массив со сгенерированными объявлениями
+ */
+var createPins = function () {
+  var pins = [];
 
   for (var i = 0; i < OFFER_COUNT; i++) {
-    var locationX = randomNumber(0, MAP_WIDTH);
-    var locationY = randomNumber(130, 630);
-
-    offers.push({
-      'author': {
-        'avatar': 'img/avatars/0' + i + '.png'
-      },
-      'offer': {
-        'title': 'заголовок предложения ' + i,
-        'address': locationX + ',' + locationY,
-        'price': [randomNumber(0, 9000)],
-        'type': OFFER_TYPE[randomNumber(0, 3)],
-        'rooms': randomNumber(1, 4),
-        'guests': randomNumber(1, 5),
-        'checkin': CHECK_TIME[randomNumber(0, 2)],
-        'checkout': CHECK_TIME[randomNumber(0, 2)],
-        'features': OFFER_FEATURES[randomNumber(0, 5)],
-        'description': 'строка с описанием ' + i,
-        'photos': OFFER_PHOTOS[randomNumber(0, 2)]
-      },
-      'location': {
-        'x': locationX,
-        'y': locationY
-      }
-    })
+    pins.push(createOffer(i));
   }
+
+  return pins;
 };
 
 /**
  * Копируем вёрстку метки объявления из шаблона
+ * @param {object} item - Объявление о сдаче недвижимости
  * @return {object} Возвращаем объект-вёрстку объявления (метка на карте)
  */
-var renderOffer = function (item, i) {
-  var offerElement = pinTemplate.cloneNode(true);
-  var offerImage = offerElement.querySelector('img');
+var renderPin = function (item) {
+  var pinElement = pinTemplate.cloneNode(true);
+  var pinImage = pinElement.querySelector('img');
 
-  offerElement.style.left = item.location.x + PIN_SIZE + 'px';
-  offerElement.style.top = item.location.y + PIN_SIZE + 'px';
+  pinElement.style.left = item.location.x + PIN_SIZE + 'px';
+  pinElement.style.top = item.location.y + PIN_SIZE + 'px';
 
-  offerImage.style.src = item.author.avatar;
-  offerImage.style.alt = item.offer.title;
+  pinImage.style.src = item.author.avatar;
+  pinImage.style.alt = item.offer.title;
 
-  return offerElement;
+  return pinElement;
 };
 
 /**
- * Добавляем объявление одно за другим к вёрстке
- * @return {void} 
+ * Добавляем метки одну за другой к вёрстке
+ * @param {object} offers - Массив с объявлениями
+ * @return {void}
  */
-var offersAdd = function () {
+var renderPins = function (offers) {
   var fragment = document.createDocumentFragment();
 
-  offers.forEach(function (item, i) {
-    fragment.appendChild(renderOffer(item, i));
+  offers.forEach(function (item) {
+    fragment.appendChild(renderPin(item));
   });
 
   pinList.appendChild(fragment);
 };
 
 map.classList.remove('map--faded');
-createOffers();
-offersAdd();
+var offers = createPins();
+renderPins(offers);
