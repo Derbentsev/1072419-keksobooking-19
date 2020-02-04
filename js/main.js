@@ -21,6 +21,13 @@ var CHECK_TIME = ['12:00', '13:00', '14:00'];
 var OFFER_FEATURES = ['wifi', 'dishwasher', 'parking', 'washer', 'elevator', 'conditioner'];
 var OFFER_PHOTOS = ['http://o0.github.io/assets/images/tokyo/hotel1.jpg', 'http://o0.github.io/assets/images/tokyo/hotel2.jpg', 'http://o0.github.io/assets/images/tokyo/hotel3.jpg'];
 
+var HOUSE_TYPE = {
+  FLAT: 'Квартира',
+  BUNGALO: 'Бунгало',
+  HOUSE: 'Дом',
+  PALACE: 'Дворец'
+};
+
 var map = document.querySelector('.map');
 var pinList = map.querySelector('.map__pins');
 var pinTemplate = document.querySelector('#pin')
@@ -147,128 +154,127 @@ var renderPins = function (offers) {
 };
 
 /**
+ * Удаляет все существующие элементы li внутри блока и формирует свои элементы li
+ * @param {object} featuresList - Блок, в котором удаляем и создаём элементы
+ * @param {object} item - Элемент в массиве объявлений о сдаче
+ * @return {void}
+ */
+var fillFeaturesBlock = function (featuresList, item) {
+  while (featuresList.firstChild) {
+    featuresList.removeChild(featuresList.firstChild);
+  }
+
+  item.offer.features.forEach(function (feature) {
+    var featureItem = document.createElement('li');
+    featureItem.className = 'popup__feature popup__feature--' + feature;
+    featuresList.appendChild(featureItem);
+  });
+};
+
+/**
+ * Удаляет существующий элемент img внутри блока и формирует свои элементы img
+ * @param {object} photoList - Блок, в котором удаляем и создаём элементы
+ * @param {object} item - Элемент в массиве объявлений о сдаче
+ * @return {void}
+ */
+var fillPhotosBlock = function (photoList, item) {
+  var photoElement = photoList.querySelector('.popup__photo');
+  photoList.removeChild(photoElement);
+
+  item.offer.photos.forEach(function (photo) {
+    var photoElementClone = photoElement.cloneNode(true);
+    photoElementClone.src = photo;
+    photoList.appendChild(photoElementClone);
+  });
+};
+
+/**
+ * Добавляем в заданный блок textContent либо скрываем данный блок
+ * @param {object} cardBlock - Блок, с которым производим манипуляции
+ * @param {object} item - Текст, который будем вставлять внутрь блока
+ * @return {void}
+ */
+var fillCardContent = function (cardBlock, item) {
+  if (item) {
+    cardBlock.textContent = item;
+  } else {
+    cardBlock.style.display = 'none';
+  }
+};
+
+/**
  * Копируем вёрстку карточки объявления и задаём ей свои параметры
  * @param {object} item - Элемент из массива с предложениями по сдаче недвижимости
  * @return {object} Карточка объявления
  */
 var renderCard = function (item) {
-  var cardElement = cardTemplate.cloneNode(true);
+  var card = cardTemplate.cloneNode(true);
 
-  var cardTitle = cardElement.querySelector('.popup__title');
-  if (item.offer.title !== '') {
-    cardTitle.textContent = item.offer.title;
+  var cardTitle = card.querySelector('.popup__title');
+  fillCardContent(cardTitle, item.offer.title);
+
+  var cardAddress = card.querySelector('.popup__text--address');
+  fillCardContent(cardAddress, item.offer.address);
+
+  var cardPrice = card.querySelector('.popup__text--price');
+  fillCardContent(cardPrice, item.offer.price + '₽/ночь');
+
+  var cardType = card.querySelector('.popup__type');
+  if (item.offer.type) {
+    cardType.textContent = HOUSE_TYPE[item.offer.type.toUpperCase()];
   } else {
-    cardTitle.style.display = 'none';
+    cardType.style.display = 'none';
   }
 
-  var cardAddress = cardElement.querySelector('.popup__text--address');
-  if (item.offer.address !== '') {
-    cardAddress.textContent = item.offer.address;
-  } else {
-    cardAddress.style.display = 'none';
-  }
-
-  var cardPrice = cardElement.querySelector('.popup__text--price');
-  if (item.offer.address !== '') {
-    cardPrice.textContent = item.offer.price + '₽/ночь';
-  } else {
-    cardPrice.style.display = 'none';
-  }
-
-  var cardType = cardElement.querySelector('.popup__type');
-  switch (item.offer.type) {
-    case 'flat':
-      cardType.textContent = 'Квартира';
-      break;
-    case 'bungalo':
-      cardType.textContent = 'Бунгало';
-      break;
-    case 'house':
-      cardType.textContent = 'Дом';
-      break;
-    case 'palace':
-      cardType.textContent = 'Дворец';
-      break;
-    default:
-      cardType.style.display = 'none';
-  }
-
-  var cardCapacity = cardElement.querySelector('.popup__text--capacity');
-  if (item.offer.rooms !== '' || item.offer.guests !== '') {
+  var cardCapacity = card.querySelector('.popup__text--capacity');
+  if (item.offer.rooms && item.offer.guests) {
     cardCapacity.textContent = item.offer.rooms + ' комнаты для ' + item.offer.guests + ' гостей';
   } else {
     cardCapacity.style.display = 'none';
   }
 
-  var cardTime = cardElement.querySelector('.popup__text--time');
-  if (item.offer.checkin !== '' || item.offer.checkout !== '') {
+  var cardTime = card.querySelector('.popup__text--time');
+  if (item.offer.checkin && item.offer.checkout) {
     cardTime.textContent = 'Заезд после ' + item.offer.checkin + ', выезд до ' + item.offer.checkout;
   } else {
     cardTime.style.display = 'none';
   }
 
-  var featuresList = cardElement.querySelector('.popup__features');
-  if (item.offer.feature !== '') {
-    while (featuresList.firstChild) {
-      featuresList.removeChild(featuresList.firstChild);
-    }
-
-    item.offer.features.forEach(function (feature) {
-      var featureItem = document.createElement('li');
-      featureItem.className = 'popup__feature popup__feature--' + feature;
-      featuresList.appendChild(featureItem);
-    });
+  var featuresList = card.querySelector('.popup__features');
+  if (typeof item.offer.features !== 'undefined' && item.offer.features.length > 0) {
+    fillFeaturesBlock(featuresList, item);
   } else {
     featuresList.style.display = 'none';
   }
 
-  var cardDescription = cardElement.querySelector('.popup__description');
-  if (item.offer.description !== '') {
-    cardDescription.textContent = item.offer.description;
-  } else {
-    cardDescription.style.display = 'none';
-  }
+  var cardDescription = card.querySelector('.popup__description');
+  fillCardContent(cardDescription, item.offer.description);
 
-  var photoList = cardElement.querySelector('.popup__photos');
-  if (item.offer.photo !== '') {
-    var photoElement = photoList.querySelector('.popup__photo');
-    photoList.removeChild(photoElement);
-
-    item.offer.photos.forEach(function (photo) {
-      var photoElementClone = photoElement.cloneNode(true);
-      photoElementClone.src = photo;
-      photoList.appendChild(photoElementClone);
-    });
+  var photoList = card.querySelector('.popup__photos');
+  if (typeof item.offer.photos !== 'undefined' && item.offer.photos.length > 0) {
+    fillPhotosBlock(photoList, item);
   } else {
     photoList.style.display = 'none';
   }
 
-  var cardAvatar = cardElement.querySelector('.popup__avatar');
-  if (item.offer.avatar !== '') {
-    cardAvatar.src = item.author.avatar;
-  } else {
-    cardAvatar.style.display = 'none';
-  }
+  var cardAvatar = card.querySelector('.popup__avatar');
+  fillCardContent(cardAvatar, item.author.avatar);
 
-  return cardElement;
+  return card;
 };
 
 /**
  * Формируем и вставляем вёрстку карточек - предложений о сдаче
- * @param {object} offers - Массив с информацией по объявлениям
+ * @param {object} offer - Массив с информацией по объявлениям
  * @return {void}
  */
-var renderCards = function (offers) {
+var renderCards = function (offer) {
   var fragment = document.createDocumentFragment();
-
-  offers.forEach(function (item) {
-    fragment.appendChild(renderCard(item));
-  });
-
+  fragment.appendChild(renderCard(offer));
   map.appendChild(fragment);
 };
 
 map.classList.remove('map--faded');
 var offers = createPins();
 renderPins(offers);
-renderCards(offers);
+renderCards(offers[0]);
