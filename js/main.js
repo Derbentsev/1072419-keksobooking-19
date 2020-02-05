@@ -190,13 +190,101 @@ var fillPhotosBlock = function (photoList, item) {
 
 /**
  * Добавляем в заданный блок textContent либо скрываем данный блок
- * @param {object} cardBlock - Блок, с которым производим манипуляции
- * @param {object} item - Текст, который будем вставлять внутрь блока
+ * @param {object} card - Шаблон карточки
+ * @param {object} classSelector - Класс блока
+ * @param {object} item - Текст объявления, который вставляем в блок
  * @return {void}
  */
-var fillCardContent = function (cardBlock, item) {
+var fillCardContent = function (card, classSelector, item) {
+  var cardBlock = card.querySelector(classSelector);
+
   if (item) {
     cardBlock.textContent = item;
+  } else {
+    cardBlock.style.display = 'none';
+  }
+};
+
+/**
+ * Добавляем в заданный блок textContent либо скрываем данный блок
+ * @param {object} card - Шаблон карточки
+ * @param {object} classSelector - Класс блока
+ * @param {object} item - Массив
+ * @return {void}
+ */
+var fillCardContentPhotos = function (card, classSelector, item) {
+  var cardBlock = card.querySelector(classSelector);
+
+  if (typeof item.offer.photos !== 'undefined' && item.offer.photos.length > 0) {
+    fillPhotosBlock(cardBlock, item);
+  } else {
+    cardBlock.style.display = 'none';
+  }
+};
+
+/**
+ * Добавляем в заданный блок textContent либо скрываем данный блок
+ * @param {object} card - Шаблон карточки
+ * @param {object} classSelector - Класс блока
+ * @param {object} item - Массив
+ * @return {void}
+ */
+var fillCardContentFeatures = function (card, classSelector, item) {
+  var cardBlock = card.querySelector(classSelector);
+
+  if (typeof item.offer.features !== 'undefined' && item.offer.features.length > 0) {
+    fillFeaturesBlock(cardBlock, item);
+  } else {
+    cardBlock.style.display = 'none';
+  }
+};
+
+/**
+ * Добавляем в заданный блок textContent либо скрываем данный блок
+ * @param {object} card - Шаблон карточки
+ * @param {object} classSelector - Класс блока
+ * @param {object} item - Массив
+ * @return {void}
+ */
+var fillCardContentCapacity = function (card, classSelector, item) {
+  var cardBlock = card.querySelector(classSelector);
+
+  if (item.offer.rooms && item.offer.guests) {
+    cardBlock.textContent = item.offer.rooms + ' комнаты для ' + item.offer.guests + ' гостей';
+  } else {
+    cardBlock.style.display = 'none';
+  }
+};
+
+/**
+ * Добавляем в заданный блок textContent либо скрываем данный блок
+ * @param {object} card - Шаблон карточки
+ * @param {object} classSelector - Класс блока
+ * @param {object} item - Массив
+ * @return {void}
+ */
+var fillCardContentType = function (card, classSelector, item) {
+  var cardBlock = card.querySelector(classSelector);
+
+  if (item.offer.type) {
+    cardBlock.textContent = HOUSE_TYPE[item.offer.type.toUpperCase()];
+  } else {
+    cardBlock.style.display = 'none';
+  }
+};
+
+/**
+ * Добавляем в заданный блок textContent либо скрываем данный блок
+ * @param {object} card - Шаблон карточки
+ * @param {object} classSelector - Класс блока
+ * @param {object} item - Массив
+ * @return {void}
+ */
+var fillCardContentTime = function (card, classSelector, item) {
+  var cardBlock = card.querySelector(classSelector);
+
+  if (item.offer.checkin && item.offer.checkout) {
+    cardBlock.textContent = 'Заезд после ' + item.offer.checkin + ', выезд до ' + item.offer.checkout;
   } else {
     cardBlock.style.display = 'none';
   }
@@ -210,55 +298,16 @@ var fillCardContent = function (cardBlock, item) {
 var renderCard = function (item) {
   var card = cardTemplate.cloneNode(true);
 
-  var cardTitle = card.querySelector('.popup__title');
-  fillCardContent(cardTitle, item.offer.title);
-
-  var cardAddress = card.querySelector('.popup__text--address');
-  fillCardContent(cardAddress, item.offer.address);
-
-  var cardPrice = card.querySelector('.popup__text--price');
-  fillCardContent(cardPrice, item.offer.price + '₽/ночь');
-
-  var cardType = card.querySelector('.popup__type');
-  if (item.offer.type) {
-    cardType.textContent = HOUSE_TYPE[item.offer.type.toUpperCase()];
-  } else {
-    cardType.style.display = 'none';
-  }
-
-  var cardCapacity = card.querySelector('.popup__text--capacity');
-  if (item.offer.rooms && item.offer.guests) {
-    cardCapacity.textContent = item.offer.rooms + ' комнаты для ' + item.offer.guests + ' гостей';
-  } else {
-    cardCapacity.style.display = 'none';
-  }
-
-  var cardTime = card.querySelector('.popup__text--time');
-  if (item.offer.checkin && item.offer.checkout) {
-    cardTime.textContent = 'Заезд после ' + item.offer.checkin + ', выезд до ' + item.offer.checkout;
-  } else {
-    cardTime.style.display = 'none';
-  }
-
-  var featuresList = card.querySelector('.popup__features');
-  if (typeof item.offer.features !== 'undefined' && item.offer.features.length > 0) {
-    fillFeaturesBlock(featuresList, item);
-  } else {
-    featuresList.style.display = 'none';
-  }
-
-  var cardDescription = card.querySelector('.popup__description');
-  fillCardContent(cardDescription, item.offer.description);
-
-  var photoList = card.querySelector('.popup__photos');
-  if (typeof item.offer.photos !== 'undefined' && item.offer.photos.length > 0) {
-    fillPhotosBlock(photoList, item);
-  } else {
-    photoList.style.display = 'none';
-  }
-
-  var cardAvatar = card.querySelector('.popup__avatar');
-  fillCardContent(cardAvatar, item.author.avatar);
+  fillCardContent(card, '.popup__title', item.offer.title);
+  fillCardContent(card, '.popup__text--address', item.offer.address);
+  fillCardContent(card, '.popup__text--price', item.offer.price + '₽/ночь');
+  fillCardContentType(card, '.popup__type', item);
+  fillCardContentCapacity(card, '.popup__text--capacity', item);
+  fillCardContentTime(card, '.popup__text--time', item);
+  fillCardContentFeatures(card, '.popup__features', item);
+  fillCardContent(card, '.popup__description', item.offer.description);
+  fillCardContentPhotos(card, '.popup__photos', item);
+  fillCardContent(card, '.popup__avatar', item.author.avatar);
 
   return card;
 };
