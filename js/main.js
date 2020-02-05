@@ -21,11 +21,22 @@ var CHECK_TIME = ['12:00', '13:00', '14:00'];
 var OFFER_FEATURES = ['wifi', 'dishwasher', 'parking', 'washer', 'elevator', 'conditioner'];
 var OFFER_PHOTOS = ['http://o0.github.io/assets/images/tokyo/hotel1.jpg', 'http://o0.github.io/assets/images/tokyo/hotel2.jpg', 'http://o0.github.io/assets/images/tokyo/hotel3.jpg'];
 
+var HOUSE_TYPE = {
+  FLAT: 'Квартира',
+  BUNGALO: 'Бунгало',
+  HOUSE: 'Дом',
+  PALACE: 'Дворец'
+};
+
 var map = document.querySelector('.map');
 var pinList = map.querySelector('.map__pins');
 var pinTemplate = document.querySelector('#pin')
   .content
   .querySelector('.map__pin');
+
+var cardTemplate = document.querySelector('#card')
+  .content
+  .querySelector('.map__card');
 
 /**
  * Определяем случайное целое число
@@ -142,6 +153,177 @@ var renderPins = function (offers) {
   pinList.appendChild(fragment);
 };
 
+/**
+ * Удаляет все существующие элементы li внутри блока и формирует свои элементы li
+ * @param {object} featuresList - Блок, в котором удаляем и создаём элементы
+ * @param {object} item - Элемент в массиве объявлений о сдаче
+ * @return {void}
+ */
+var fillFeaturesBlock = function (featuresList, item) {
+  while (featuresList.firstChild) {
+    featuresList.removeChild(featuresList.firstChild);
+  }
+
+  item.offer.features.forEach(function (feature) {
+    var featureItem = document.createElement('li');
+    featureItem.className = 'popup__feature popup__feature--' + feature;
+    featuresList.appendChild(featureItem);
+  });
+};
+
+/**
+ * Удаляет существующий элемент img внутри блока и формирует свои элементы img
+ * @param {object} photoList - Блок, в котором удаляем и создаём элементы
+ * @param {object} item - Элемент в массиве объявлений о сдаче
+ * @return {void}
+ */
+var fillPhotosBlock = function (photoList, item) {
+  var photoElement = photoList.querySelector('.popup__photo');
+  photoList.removeChild(photoElement);
+
+  item.offer.photos.forEach(function (photo) {
+    var photoElementClone = photoElement.cloneNode(true);
+    photoElementClone.src = photo;
+    photoList.appendChild(photoElementClone);
+  });
+};
+
+/**
+ * Добавляем в заданный блок textContent либо скрываем данный блок
+ * @param {object} card - Шаблон карточки
+ * @param {object} classSelector - Класс блока
+ * @param {object} item - Текст объявления, который вставляем в блок
+ * @return {void}
+ */
+var fillCardContent = function (card, classSelector, item) {
+  var cardBlock = card.querySelector(classSelector);
+
+  if (item) {
+    cardBlock.textContent = item;
+  } else {
+    cardBlock.style.display = 'none';
+  }
+};
+
+/**
+ * Добавляем в заданный блок textContent либо скрываем данный блок
+ * @param {object} card - Шаблон карточки
+ * @param {object} classSelector - Класс блока
+ * @param {object} item - Массив
+ * @return {void}
+ */
+var fillCardContentPhotos = function (card, classSelector, item) {
+  var cardBlock = card.querySelector(classSelector);
+
+  if (typeof item.offer.photos !== 'undefined' && item.offer.photos.length > 0) {
+    fillPhotosBlock(cardBlock, item);
+  } else {
+    cardBlock.style.display = 'none';
+  }
+};
+
+/**
+ * Добавляем в заданный блок textContent либо скрываем данный блок
+ * @param {object} card - Шаблон карточки
+ * @param {object} classSelector - Класс блока
+ * @param {object} item - Массив
+ * @return {void}
+ */
+var fillCardContentFeatures = function (card, classSelector, item) {
+  var cardBlock = card.querySelector(classSelector);
+
+  if (typeof item.offer.features !== 'undefined' && item.offer.features.length > 0) {
+    fillFeaturesBlock(cardBlock, item);
+  } else {
+    cardBlock.style.display = 'none';
+  }
+};
+
+/**
+ * Добавляем в заданный блок textContent либо скрываем данный блок
+ * @param {object} card - Шаблон карточки
+ * @param {object} classSelector - Класс блока
+ * @param {object} item - Массив
+ * @return {void}
+ */
+var fillCardContentCapacity = function (card, classSelector, item) {
+  var cardBlock = card.querySelector(classSelector);
+
+  if (item.offer.rooms && item.offer.guests) {
+    cardBlock.textContent = item.offer.rooms + ' комнаты для ' + item.offer.guests + ' гостей';
+  } else {
+    cardBlock.style.display = 'none';
+  }
+};
+
+/**
+ * Добавляем в заданный блок textContent либо скрываем данный блок
+ * @param {object} card - Шаблон карточки
+ * @param {object} classSelector - Класс блока
+ * @param {object} item - Массив
+ * @return {void}
+ */
+var fillCardContentType = function (card, classSelector, item) {
+  var cardBlock = card.querySelector(classSelector);
+
+  if (item.offer.type) {
+    cardBlock.textContent = HOUSE_TYPE[item.offer.type.toUpperCase()];
+  } else {
+    cardBlock.style.display = 'none';
+  }
+};
+
+/**
+ * Добавляем в заданный блок textContent либо скрываем данный блок
+ * @param {object} card - Шаблон карточки
+ * @param {object} classSelector - Класс блока
+ * @param {object} item - Массив
+ * @return {void}
+ */
+var fillCardContentTime = function (card, classSelector, item) {
+  var cardBlock = card.querySelector(classSelector);
+
+  if (item.offer.checkin && item.offer.checkout) {
+    cardBlock.textContent = 'Заезд после ' + item.offer.checkin + ', выезд до ' + item.offer.checkout;
+  } else {
+    cardBlock.style.display = 'none';
+  }
+};
+
+/**
+ * Копируем вёрстку карточки объявления и задаём ей свои параметры
+ * @param {object} item - Элемент из массива с предложениями по сдаче недвижимости
+ * @return {object} Карточка объявления
+ */
+var renderCard = function (item) {
+  var card = cardTemplate.cloneNode(true);
+
+  fillCardContent(card, '.popup__title', item.offer.title);
+  fillCardContent(card, '.popup__text--address', item.offer.address);
+  fillCardContent(card, '.popup__text--price', item.offer.price + '₽/ночь');
+  fillCardContentType(card, '.popup__type', item);
+  fillCardContentCapacity(card, '.popup__text--capacity', item);
+  fillCardContentTime(card, '.popup__text--time', item);
+  fillCardContentFeatures(card, '.popup__features', item);
+  fillCardContent(card, '.popup__description', item.offer.description);
+  fillCardContentPhotos(card, '.popup__photos', item);
+  fillCardContent(card, '.popup__avatar', item.author.avatar);
+
+  return card;
+};
+
+/**
+ * Формируем и вставляем вёрстку карточек - предложений о сдаче
+ * @param {object} offer - Массив с информацией по объявлениям
+ * @return {void}
+ */
+var renderCards = function (offer) {
+  var fragment = document.createDocumentFragment();
+  fragment.appendChild(renderCard(offer));
+  map.appendChild(fragment);
+};
+
 map.classList.remove('map--faded');
 var offers = createPins();
 renderPins(offers);
+renderCards(offers[0]);
