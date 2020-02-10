@@ -13,13 +13,25 @@ var MIN_ROOMS = 1;
 var MAX_ROOMS = 4;
 var MIN_GUESTS = 1;
 var MAX_GUESTS = 5;
+var MAIN_PIN_PSEUDO_HEIGHT = 22;
+
+var ENTER_KEY = 'Enter';
 
 var AVATAR_PATH = 'img/avatars/user0';
+
+var TEXT_CAPACITY_VALIDATE_ERROR = 'К сожалению, вы тут не поместитесь(. Пожалуйста, выберите другое кол-во комнат';
 
 var OFFER_TYPE = ['palace', 'flat', 'house', 'bungalo'];
 var CHECK_TIME = ['12:00', '13:00', '14:00'];
 var OFFER_FEATURES = ['wifi', 'dishwasher', 'parking', 'washer', 'elevator', 'conditioner'];
 var OFFER_PHOTOS = ['http://o0.github.io/assets/images/tokyo/hotel1.jpg', 'http://o0.github.io/assets/images/tokyo/hotel2.jpg', 'http://o0.github.io/assets/images/tokyo/hotel3.jpg'];
+
+var ROOMS_CAPACITY = {
+  '1': ['1'],
+  '2': ['1', '2'],
+  '3': ['1', '2', '3'],
+  '100': ['0']
+};
 
 var HOUSE_TYPE = {
   FLAT: 'Квартира',
@@ -28,12 +40,35 @@ var HOUSE_TYPE = {
   PALACE: 'Дворец'
 };
 
+var CARD_CLASS = {
+  TITLE: '.popup__title',
+  ADDRESS: '.popup__text--address',
+  PRICE: '.popup__text--price',
+  TYPE: '.popup__type',
+  CAPACITY: '.popup__text--capacity',
+  TIME: '.popup__text--time',
+  FEATURES: '.popup__features',
+  DESCRIPTION: '.popup__description',
+  PHOTOS: '.popup__photos',
+  AVATAR: '.popup__avatar'
+};
+
 var map = document.querySelector('.map');
 var pinList = map.querySelector('.map__pins');
+var pinMain = map.querySelector('.map__pin--main');
+
+var filtersSection = document.querySelector('.notice');
+var filterForm = filtersSection.querySelector('.ad-form');
+var filtersFormAddress = filtersSection.querySelector('#address');
+var filtersFormRooms = filtersSection.querySelector('#room_number');
+var filtersFormGuests = filtersSection.querySelector('#capacity');
+var resetButton = filtersSection.querySelector('.ad-form__reset');
+
+var fieldsets = document.querySelectorAll('fieldset');
+
 var pinTemplate = document.querySelector('#pin')
   .content
   .querySelector('.map__pin');
-
 var cardTemplate = document.querySelector('#card')
   .content
   .querySelector('.map__card');
@@ -298,16 +333,16 @@ var fillCardContentTime = function (card, classSelector, item) {
 var renderCard = function (item) {
   var card = cardTemplate.cloneNode(true);
 
-  fillCardContent(card, '.popup__title', item.offer.title);
-  fillCardContent(card, '.popup__text--address', item.offer.address);
-  fillCardContent(card, '.popup__text--price', item.offer.price + '₽/ночь');
-  fillCardContentType(card, '.popup__type', item);
-  fillCardContentCapacity(card, '.popup__text--capacity', item);
-  fillCardContentTime(card, '.popup__text--time', item);
-  fillCardContentFeatures(card, '.popup__features', item);
-  fillCardContent(card, '.popup__description', item.offer.description);
-  fillCardContentPhotos(card, '.popup__photos', item);
-  fillCardContent(card, '.popup__avatar', item.author.avatar);
+  fillCardContent(card, CARD_CLASS['TITLE'], item.offer.title);
+  fillCardContent(card, CARD_CLASS['ADDRESS'], item.offer.address);
+  fillCardContent(card, CARD_CLASS['PRICE'], item.offer.price + '₽/ночь');
+  fillCardContentType(card, CARD_CLASS['TYPE'], item);
+  fillCardContentCapacity(card, CARD_CLASS['CAPACITY'], item);
+  fillCardContentTime(card, CARD_CLASS['TIME'], item);
+  fillCardContentFeatures(card, CARD_CLASS['FEATURES'], item);
+  fillCardContent(card, CARD_CLASS['DESCRIPTION'], item.offer.description);
+  fillCardContentPhotos(card, CARD_CLASS['PHOTOS'], item);
+  fillCardContent(card, CARD_CLASS['AVATAR'], item.author.avatar);
 
   return card;
 };
@@ -323,7 +358,109 @@ var renderCards = function (offer) {
   map.appendChild(fragment);
 };
 
-map.classList.remove('map--faded');
-var offers = createPins();
-renderPins(offers);
-renderCards(offers[0]);
+/**
+ * Активирует карту и отрисовывает карточки предложений
+ * @return {void}
+ */
+var activateOffers = function () {
+  var offers = createPins();
+  renderPins(offers);
+  renderCards(offers[0]);
+};
+
+/**
+ * Отключаем для редактирования поля для ввода данных
+ * @param {boolean} isEnabled - Доступны ли поля для воода или нет
+ * @return {void}
+ */
+var statusFields = function (isEnabled) {
+  fieldsets.forEach(function (item) {
+    if (isEnabled) {
+      map.classList.remove('map--faded');
+      filterForm.classList.remove('ad-form--disabled');
+      item.removeAttribute('disabled', 'disabled');
+    } else {
+      item.setAttribute('disabled', 'disabled');
+    }
+  });
+};
+
+/**
+ * Активируем главеую страницу для взаимодействия с пользователем при нажатии клавиш
+ * @return {void}
+ */
+var addActivateMainPageListeners = function () {
+  pinMain.addEventListener('mousedown', function (evt) {
+    if (evt.which === 1) {
+      activateOffers();
+      statusFields(true);
+      setPinCoordinatets();
+    }
+  });
+
+  pinMain.addEventListener('keydown', function (evt) {
+    if (evt.key === ENTER_KEY) {
+      activateOffers();
+      statusFields(true);
+      setPinCoordinatets();
+    }
+  });
+};
+
+/**
+ * Определяем координаты пина по умолчанию
+ * @return {void}
+ */
+var setDefaultPinCoordinates = function () {
+  filtersFormAddress.value = Math.round(pinMain.offsetTop - pinMain.offsetHeight / 2) + ', ' + Math.round(pinMain.offsetLeft - pinMain.offsetWidth / 2);
+};
+
+/**
+ * Определяем координаты пина, исходя из текущего положения острого конца
+ * @return {void}
+ */
+var setPinCoordinatets = function () {
+  filtersFormAddress.value = Math.round(pinMain.offsetTop - pinMain.offsetHeight / 2) + ', ' + Math.round(pinMain.offsetLeft + MAIN_PIN_PSEUDO_HEIGHT);
+};
+
+/**
+ * Удаляем возможность выбора в поле 'Количество мест' те варианты, которые не соответствуют выбранному кол-ву комнат
+ * @return {void}
+ */
+var changeCapacityRange = function () {
+  if (filtersFormGuests.options.length) {
+    [].forEach.call(filtersFormGuests.options, function (item) {
+      item.selected = (ROOMS_CAPACITY[filtersFormRooms.value][0] === item.value) ? true : false;
+      item.disabled = (ROOMS_CAPACITY[filtersFormRooms.value].indexOf(item.value) >= 0) ? false : true;
+    });
+  }
+};
+
+/**
+ * Устанавливаем свой текст на валидацию поля по количеству комнат
+ * @return {void}
+ */
+var setCapacityValidation = function () {
+  if (filtersFormGuests.options.length) {
+    if (ROOMS_CAPACITY[filtersFormRooms.value].indexOf(filtersFormGuests.value) < 0) {
+      filtersFormRooms.setCustomValidity(TEXT_CAPACITY_VALIDATE_ERROR);
+    }
+  }
+};
+
+
+statusFields(false);
+setDefaultPinCoordinates();
+addActivateMainPageListeners();
+changeCapacityRange();
+setCapacityValidation();
+
+filtersFormRooms.addEventListener('change', function () {
+  changeCapacityRange();
+  setCapacityValidation();
+});
+
+resetButton.addEventListener('click', function () {
+  filterForm.reset();
+  setCapacityValidation();
+});
