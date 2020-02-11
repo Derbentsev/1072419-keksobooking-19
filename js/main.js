@@ -55,6 +55,7 @@ var CARD_CLASS = {
 
 var map = document.querySelector('.map');
 var pinList = map.querySelector('.map__pins');
+var mapText = pinList.querySelector('.map__overlay');
 var pinMain = map.querySelector('.map__pin--main');
 
 var filtersSection = document.querySelector('.notice');
@@ -373,13 +374,15 @@ var activateOffers = function () {
  * @param {boolean} isEnabled - Доступны ли поля для воода или нет
  * @return {void}
  */
-var statusFields = function (isEnabled) {
+var activateFields = function (isEnabled) {
   fieldsets.forEach(function (item) {
     if (isEnabled) {
       map.classList.remove('map--faded');
       filterForm.classList.remove('ad-form--disabled');
       item.removeAttribute('disabled', 'disabled');
     } else {
+      map.classList.add('map--faded');
+      filterForm.classList.add('ad-form--disabled');
       item.setAttribute('disabled', 'disabled');
     }
   });
@@ -393,7 +396,7 @@ var addActivateMainPageListeners = function () {
   pinMain.addEventListener('mousedown', function (evt) {
     if (evt.which === 1) {
       activateOffers();
-      statusFields(true);
+      activateFields(true);
       setPinCoordinatets();
     }
   });
@@ -401,7 +404,7 @@ var addActivateMainPageListeners = function () {
   pinMain.addEventListener('keydown', function (evt) {
     if (evt.key === ENTER_KEY) {
       activateOffers();
-      statusFields(true);
+      activateFields(true);
       setPinCoordinatets();
     }
   });
@@ -444,12 +447,29 @@ var setCapacityValidation = function () {
   if (filtersFormGuests.options.length) {
     if (ROOMS_CAPACITY[filtersFormRooms.value].indexOf(filtersFormGuests.value) < 0) {
       filtersFormRooms.setCustomValidity(TEXT_CAPACITY_VALIDATE_ERROR);
+    } else {
+      filtersFormRooms.setCustomValidity('');
     }
   }
 };
 
+/**
+ * Удаляем все метки с объявлениями с карты
+ * @return {void}
+ */
+var removePins = function () {
+  for (var i = 0; i < pinList.children.length; i++) {
+    if (pinList.children[i] !== pinMain && pinList.children[i] !== mapText) {
+      pinList.children[i].remove();
+      i--;
+    }
+  }
 
-statusFields(false);
+  document.querySelector('.map__card.popup').remove();
+};
+
+
+activateFields(false);
 setDefaultPinCoordinates();
 addActivateMainPageListeners();
 changeCapacityRange();
@@ -463,4 +483,7 @@ filtersFormRooms.addEventListener('change', function () {
 resetButton.addEventListener('click', function () {
   filterForm.reset();
   setCapacityValidation();
+  activateFields(false);
+  setDefaultPinCoordinates();
+  removePins();
 });
