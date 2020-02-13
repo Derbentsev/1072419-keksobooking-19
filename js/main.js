@@ -403,9 +403,13 @@ var toggleActivatePage = function () {
 
   if (isPageActive) {
     isPageActive = false;
+    removeFormRoomsListener();
+    removeResetButtonListener();
   } else {
     isPageActive = true;
     activateOffers();
+    addFormRoomsListener();
+    addResetButtonListener();
     removeMainPinListeners();
   }
 
@@ -578,5 +582,3 @@ addMainPinListeners();
 changeCapacityRange();
 setCapacityValidation();
 toggleActivateInputs();
-addFormRoomsListener();
-addResetButtonListener();
