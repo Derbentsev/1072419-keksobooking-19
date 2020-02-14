@@ -16,6 +16,7 @@ var MAX_GUESTS = 5;
 var MAIN_PIN_PSEUDO_HEIGHT = 22;
 
 var ENTER_KEY = 'Enter';
+var ESC_KEY = 'Escape';
 
 var AVATAR_PATH = 'img/avatars/user0';
 
@@ -27,6 +28,8 @@ var OFFER_FEATURES = ['wifi', 'dishwasher', 'parking', 'washer', 'elevator', 'co
 var OFFER_PHOTOS = ['http://o0.github.io/assets/images/tokyo/hotel1.jpg', 'http://o0.github.io/assets/images/tokyo/hotel2.jpg', 'http://o0.github.io/assets/images/tokyo/hotel3.jpg'];
 
 var isPageActive = false;
+
+var offers = [];
 
 var RoomsCapacity = {
   '1': ['1'],
@@ -160,9 +163,10 @@ var createPins = function () {
 /**
  * Копируем вёрстку метки объявления из шаблона
  * @param {object} item - Объявление о сдаче недвижимости
+ * @param {number} i - Порядковый номер объявления
  * @return {object} Возвращаем объект-вёрстку объявления (метка на карте)
  */
-var renderPin = function (item) {
+var renderPin = function (item, i) {
   var pinElement = pinTemplate.cloneNode(true);
   var pinImage = pinElement.querySelector('img');
 
@@ -174,19 +178,21 @@ var renderPin = function (item) {
 
   pinImage.src = item.author.avatar;
 
+  pinElement.dataset.key = i;
+
   return pinElement;
 };
 
 /**
  * Добавляем метки одну за другой к вёрстке
- * @param {object} offers - Массив с объявлениями
+ * @param {object} items - Массив с объявлениями
  * @return {void}
  */
-var renderPins = function (offers) {
+var renderPins = function (items) {
   var fragment = document.createDocumentFragment();
 
-  offers.forEach(function (item) {
-    fragment.appendChild(renderPin(item));
+  items.forEach(function (item, i) {
+    fragment.appendChild(renderPin(item, i));
   });
 
   pinList.appendChild(fragment);
@@ -282,14 +288,14 @@ var fillCardContentFeatures = function (card, classSelector, item) {
  * Добавляем в заданный блок textContent либо скрываем данный блок
  * @param {object} card - Шаблон карточки
  * @param {object} classSelector - Класс блока
- * @param {object} item - Массив
+ * @param {object} offer - Массив
  * @return {void}
  */
-var fillCardContentCapacity = function (card, classSelector, item) {
+var fillCardContentCapacity = function (card, classSelector, offer) {
   var cardBlock = card.querySelector(classSelector);
 
-  if (item.offer.rooms && item.offer.guests) {
-    cardBlock.textContent = item.offer.rooms + ' комнаты для ' + item.offer.guests + ' гостей';
+  if (offer.offer.rooms && offer.offer.guests) {
+    cardBlock.textContent = offer.offer.rooms + ' комнаты для ' + offer.offer.guests + ' гостей';
   } else {
     cardBlock.style.display = 'none';
   }
@@ -299,14 +305,14 @@ var fillCardContentCapacity = function (card, classSelector, item) {
  * Добавляем в заданный блок textContent либо скрываем данный блок
  * @param {object} card - Шаблон карточки
  * @param {object} classSelector - Класс блока
- * @param {object} item - Массив
+ * @param {object} offer - Массив
  * @return {void}
  */
-var fillCardContentType = function (card, classSelector, item) {
+var fillCardContentType = function (card, classSelector, offer) {
   var cardBlock = card.querySelector(classSelector);
 
-  if (item.offer.type) {
-    cardBlock.textContent = HouseType[item.offer.type.toUpperCase()];
+  if (offer.offer.type) {
+    cardBlock.textContent = HouseType[offer.offer.type.toUpperCase()];
   } else {
     cardBlock.style.display = 'none';
   }
@@ -316,14 +322,31 @@ var fillCardContentType = function (card, classSelector, item) {
  * Добавляем в заданный блок textContent либо скрываем данный блок
  * @param {object} card - Шаблон карточки
  * @param {object} classSelector - Класс блока
- * @param {object} item - Массив
+ * @param {object} offer - Массив
  * @return {void}
  */
-var fillCardContentTime = function (card, classSelector, item) {
+var fillCardContentTime = function (card, classSelector, offer) {
   var cardBlock = card.querySelector(classSelector);
 
-  if (item.offer.checkin && item.offer.checkout) {
-    cardBlock.textContent = 'Заезд после ' + item.offer.checkin + ', выезд до ' + item.offer.checkout;
+  if (offer.offer.checkin && offer.offer.checkout) {
+    cardBlock.textContent = 'Заезд после ' + offer.offer.checkin + ', выезд до ' + offer.offer.checkout;
+  } else {
+    cardBlock.style.display = 'none';
+  }
+};
+
+/**
+ * Добавляем аватар
+ * @param {object} card - Шаблон карточки
+ * @param {object} classSelector - Класс блока
+ * @param {object} src - Путь до фото аватара
+ * @return {void}
+ */
+var fillCardContentAvatar = function (card, classSelector, src) {
+  var cardBlock = card.querySelector(classSelector);
+
+  if (src) {
+    cardBlock.src = src;
   } else {
     cardBlock.style.display = 'none';
   }
@@ -331,35 +354,39 @@ var fillCardContentTime = function (card, classSelector, item) {
 
 /**
  * Копируем вёрстку карточки объявления и задаём ей свои параметры
- * @param {object} item - Элемент из массива с предложениями по сдаче недвижимости
+ * @param {object} offer - Элемент из массива с предложениями по сдаче недвижимости
  * @return {object} Карточка объявления
  */
-var renderCard = function (item) {
+var createPopup = function (offer) {
   var card = cardTemplate.cloneNode(true);
 
-  fillCardContent(card, CardClass['TITLE'], item.offer.title);
-  fillCardContent(card, CardClass['ADDRESS'], item.offer.address);
-  fillCardContent(card, CardClass['PRICE'], item.offer.price + '₽/ночь');
-  fillCardContentType(card, CardClass['TYPE'], item);
-  fillCardContentCapacity(card, CardClass['CAPACITY'], item);
-  fillCardContentTime(card, CardClass['TIME'], item);
-  fillCardContentFeatures(card, CardClass['FEATURES'], item);
-  fillCardContent(card, CardClass['DESCRIPTION'], item.offer.description);
-  fillCardContentPhotos(card, CardClass['PHOTOS'], item);
-  fillCardContent(card, CardClass['AVATAR'], item.author.avatar);
+  fillCardContent(card, CardClass['TITLE'], offer.offer.title);
+  fillCardContent(card, CardClass['ADDRESS'], offer.offer.address);
+  fillCardContent(card, CardClass['PRICE'], offer.offer.price + '₽/ночь');
+  fillCardContentType(card, CardClass['TYPE'], offer);
+  fillCardContentCapacity(card, CardClass['CAPACITY'], offer);
+  fillCardContentTime(card, CardClass['TIME'], offer);
+  fillCardContentFeatures(card, CardClass['FEATURES'], offer);
+  fillCardContent(card, CardClass['DESCRIPTION'], offer.offer.description);
+  fillCardContentPhotos(card, CardClass['PHOTOS'], offer);
+  fillCardContentAvatar(card, CardClass['AVATAR'], offer.author.avatar);
 
   return card;
 };
 
 /**
- * Формируем и вставляем вёрстку карточек - предложений о сдаче
+ * Формируем и вставляем вёрстку попапа - инфо о сдаваемом объекте
  * @param {object} offer - Массив с информацией по объявлениям
  * @return {void}
  */
-var renderCards = function (offer) {
+var renderPopup = function (offer) {
+  removeCardPopup();
+
   var fragment = document.createDocumentFragment();
-  fragment.appendChild(renderCard(offer));
+  fragment.appendChild(createPopup(offer));
   map.appendChild(fragment);
+
+  addPopupListeners();
 };
 
 /**
@@ -367,9 +394,8 @@ var renderCards = function (offer) {
  * @return {void}
  */
 var activateOffers = function () {
-  var offers = createPins();
+  offers = createPins();
   renderPins(offers);
-  renderCards(offers[0]);
 };
 
 /**
@@ -405,12 +431,14 @@ var toggleActivatePage = function () {
     isPageActive = false;
     removeFormRoomsListener();
     removeResetButtonListener();
+    removePinsListeners();
   } else {
     isPageActive = true;
     activateOffers();
     addFormRoomsListener();
     addResetButtonListener();
     removeMainPinListeners();
+    addPinsListeners();
   }
 
   filtersFormAddress.value = getPinCoordinates();
@@ -424,6 +452,7 @@ var toggleActivatePage = function () {
 var clickOnMainPin = function (evt) {
   if (evt.button === 0) {
     toggleActivatePage();
+    evt.stopPropagation();
   }
 };
 
@@ -435,6 +464,7 @@ var clickOnMainPin = function (evt) {
 var pressOnMainPin = function (evt) {
   if (evt.key === ENTER_KEY && !isPageActive) {
     toggleActivatePage();
+    evt.stopPropagation();
   }
 };
 
@@ -445,6 +475,9 @@ var pressOnMainPin = function (evt) {
 var addMainPinListeners = function () {
   pinMain.addEventListener('mousedown', clickOnMainPin);
   pinMain.addEventListener('keydown', pressOnMainPin);
+  pinMain.addEventListener('click', function (evt) {
+    evt.stopPropagation();
+  });
 };
 
 /**
@@ -574,6 +607,75 @@ var addResetButtonListener = function () {
  */
 var removeResetButtonListener = function () {
   resetButton.removeEventListener('click', onPressResetButton);
+};
+
+/**
+ * Обработчик события нажатия на пин объявления
+ * @param {*} evt - Событие нажатия на пин
+ * @return {void}
+ */
+var onPinClick = function (evt) {
+  if (evt.target.parentElement.dataset.key) {
+    renderPopup(offers[evt.target.parentElement.dataset.key]);
+  }
+};
+
+/**
+ * Обработчик события нажатия Enter на пин объявления
+ * @param {*} evt - Событие нажатия на пин
+ * @return {void}
+ */
+var onPinEnterPress = function (evt) {
+  if (evt.key === ENTER_KEY) {
+    renderPopup(offers[evt.target.dataset.key]);
+  }
+};
+
+/**
+ * Обработчик события нажатия ESC на попап объявления
+ * @param {*} evt - Событие нажатия на пин
+ * @return {void}
+ */
+var onPopupEscPress = function (evt) {
+  if (evt.key === ESC_KEY) {
+    removeCardPopup();
+    removePopupListeners();
+    addPinsListeners();
+  }
+};
+
+/**
+ * Добавляем отслеживание кликов на пины объявлений
+ * @return {void}
+ */
+var addPinsListeners = function () {
+  pinList.addEventListener('click', onPinClick);
+  pinList.addEventListener('keydown', onPinEnterPress);
+};
+
+/**
+ * Удаляем отслеживание кликов на пины объявлений
+ * @return {void}
+ */
+var removePinsListeners = function () {
+  pinList.removeEventListener('click', onPinClick);
+  pinList.removeEventListener('keydown', onPinEnterPress);
+};
+
+/**
+ * Добавляем отслеживание нажатия клавиш на попап
+ * @return {void}
+ */
+var addPopupListeners = function () {
+  document.addEventListener('keydown', onPopupEscPress);
+};
+
+/**
+ * Удаляем отслеживание нажатия клавиш на попап
+ * @return {void}
+ */
+var removePopupListeners = function () {
+  document.removeEventListener('keydown', onPopupEscPress);
 };
 
 
