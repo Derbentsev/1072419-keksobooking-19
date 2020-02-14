@@ -14,6 +14,13 @@ var MAX_ROOMS = 4;
 var MIN_GUESTS = 1;
 var MAX_GUESTS = 5;
 var MAIN_PIN_PSEUDO_HEIGHT = 22;
+var MIN_TITLE_LENGTH = 30;
+var MAX_TITLE_LENGTH = 100;
+var MAX_PRICE = 1000000;
+var MIN_PRICE_BUNGALO = 0;
+var MIN_PRICE_FLAT = 1000;
+var MIN_PRICE_HOUSE = 5000;
+var MIN_PRICE_PALACE = 10000;
 
 var ENTER_KEY = 'Enter';
 var ESC_KEY = 'Escape';
@@ -64,11 +71,17 @@ var mapText = pinList.querySelector('.map__overlay');
 var pinMain = map.querySelector('.map__pin--main');
 
 var filtersSection = document.querySelector('.notice');
-var filterForm = filtersSection.querySelector('.ad-form');
-var filtersFormAddress = filtersSection.querySelector('#address');
-var filtersFormRooms = filtersSection.querySelector('#room_number');
-var filtersFormGuests = filtersSection.querySelector('#capacity');
 var resetButton = filtersSection.querySelector('.ad-form__reset');
+
+var filterForm = filtersSection.querySelector('.ad-form');
+var filterFormAddress = filtersSection.querySelector('#address');
+var filterFormRooms = filtersSection.querySelector('#room_number');
+var filterFormGuests = filtersSection.querySelector('#capacity');
+var filterFormTitle = filterForm.querySelector('#title');
+var filterFormPrice = filterForm.querySelector('#price');
+var filterFormType = filterForm.querySelector('#type');
+var filterFormTimein = filterForm.querySelector('#timein');
+var filterFormTimeout = filterForm.querySelector('#timeout');
 
 var fieldsets = document.querySelectorAll('fieldset');
 
@@ -79,6 +92,9 @@ var pinTemplate = document.querySelector('#pin')
 var cardTemplate = document.querySelector('#card')
   .content
   .querySelector('.map__card');
+
+var popupCloseButton;
+
 
 /**
  * Определяем случайное целое число
@@ -386,6 +402,8 @@ var renderPopup = function (offer) {
   fragment.appendChild(createPopup(offer));
   map.appendChild(fragment);
 
+  popupCloseButton = map.querySelector('.popup__close');
+
   addPopupListeners();
 };
 
@@ -416,7 +434,7 @@ var toggleActivateInputs = function () {
     item.toggleAttribute('disabled');
   });
 
-  addFormRoomsListener();
+  addFormInputsListener();
 };
 
 /**
@@ -429,19 +447,19 @@ var toggleActivatePage = function () {
 
   if (isPageActive) {
     isPageActive = false;
-    removeFormRoomsListener();
+    removeFormInputsListener();
     removeResetButtonListener();
     removePinsListeners();
   } else {
     isPageActive = true;
     activateOffers();
-    addFormRoomsListener();
+    addFormInputsListener();
     addResetButtonListener();
     removeMainPinListeners();
     addPinsListeners();
   }
 
-  filtersFormAddress.value = getPinCoordinates();
+  filterFormAddress.value = getPinCoordinates();
 };
 
 /**
@@ -502,33 +520,6 @@ var getPinCoordinates = function () {
 };
 
 /**
- * Удаляем возможность выбора в поле 'Количество мест' те варианты, которые не соответствуют выбранному кол-ву комнат
- * @return {void}
- */
-var changeCapacityRange = function () {
-  if (filtersFormGuests.options.length) {
-    [].forEach.call(filtersFormGuests.options, function (item) {
-      item.selected = (RoomsCapacity[filtersFormRooms.value][0] === item.value) ? true : false;
-      item.disabled = (RoomsCapacity[filtersFormRooms.value].indexOf(item.value) >= 0) ? false : true;
-    });
-  }
-};
-
-/**
- * Устанавливаем свой текст на валидацию поля по количеству комнат
- * @return {void}
- */
-var setCapacityValidation = function () {
-  if (filtersFormGuests.options.length) {
-    if (RoomsCapacity[filtersFormRooms.value].indexOf(filtersFormGuests.value) < 0) {
-      filtersFormRooms.setCustomValidity(TEXT_CAPACITY_VALIDATE_ERROR);
-    } else {
-      filtersFormRooms.setCustomValidity('');
-    }
-  }
-};
-
-/**
  * Удаляем попап карточки объявления
  * @return {void}
  */
@@ -555,6 +546,33 @@ var removePins = function () {
 };
 
 /**
+ * Удаляем возможность выбора в поле 'Количество мест' те варианты, которые не соответствуют выбранному кол-ву комнат
+ * @return {void}
+ */
+var changeCapacityRange = function () {
+  if (filterFormGuests.options.length) {
+    [].forEach.call(filterFormGuests.options, function (item) {
+      item.selected = (RoomsCapacity[filterFormRooms.value][0] === item.value) ? true : false;
+      item.disabled = (RoomsCapacity[filterFormRooms.value].indexOf(item.value) >= 0) ? false : true;
+    });
+  }
+};
+
+/**
+ * Устанавливаем свой текст на валидацию поля по количеству комнат
+ * @return {void}
+ */
+var setCapacityValidation = function () {
+  if (filterFormGuests.options.length) {
+    if (RoomsCapacity[filterFormRooms.value].indexOf(filterFormGuests.value) < 0) {
+      filterFormRooms.setCustomValidity(TEXT_CAPACITY_VALIDATE_ERROR);
+    } else {
+      filterFormRooms.setCustomValidity('');
+    }
+  }
+};
+
+/**
  * Обработчик события при изменении кол-ва комнат
  * @return {void}
  */
@@ -564,19 +582,46 @@ var onChangeFormRooms = function () {
 };
 
 /**
+ * Обработчик события при изменении поля "Заголовок объявления"
+ * @param {object} evt - Событие изменения поля
+ * @return {void}
+ */
+var onInputFormTitle = function (evt) {
+  if (evt.target.value.length < MIN_TITLE_LENGTH) {
+    evt.target.setCustomValidity('Заголовок должен состоять минимум из ' + MIN_TITLE_LENGTH + ' символов.');
+  } else if (evt.target.value.length > MAX_TITLE_LENGTH) {
+    evt.target.setCustomValidity('Заголовок должен состоять максимум из ' + MAX_TITLE_LENGTH + ' символов.');
+  } else {
+    evt.target.setCustomValidity('');
+  }
+};
+
+/**
  * Вешаем обработчик события при изменении кол-ва комнат
  * @return {void}
  */
-var addFormRoomsListener = function () {
-  filtersFormRooms.addEventListener('change', onChangeFormRooms);
+var addFormInputsListener = function () {
+  filterFormRooms.addEventListener('change', onChangeFormRooms);
+
+  filterFormTitle.addEventListener('input', onInputFormTitle);
+  filterFormPrice.addEventListener('input', onInputFormPrice);
+  filterFormType.addEventListener('input', onInputFormType);
+  filterFormTimein.addEventListener('input', onInputFormTimein);
+  filterFormTimeout.addEventListener('input', onInputFormTimeout);
 };
 
 /**
  * Удаляем обработчик события при изменении кол-ва комнат
  * @return {void}
  */
-var removeFormRoomsListener = function () {
-  filtersFormRooms.removeEventListener('change', onChangeFormRooms);
+var removeFormInputsListener = function () {
+  filterFormRooms.removeEventListener('change', onChangeFormRooms);
+
+  filterFormTitle.removeEventListener('input', onInputFormTitle);
+  filterFormPrice.removeEventListener('input', onInputFormPrice);
+  filterFormType.removeEventListener('input', onInputFormType);
+  filterFormTimein.removeEventListener('input', onInputFormTimein);
+  filterFormTimeout.removeEventListener('input', onInputFormTimeout);
 };
 
 /**
@@ -585,14 +630,14 @@ var removeFormRoomsListener = function () {
  */
 var onPressResetButton = function () {
   filterForm.reset();
-  filtersFormAddress.value = getPinCoordinates();
+  filterFormAddress.value = getPinCoordinates();
   changeCapacityRange();
   setCapacityValidation();
   toggleActivatePage();
   removePins();
   removeCardPopup();
   addMainPinListeners();
-  removeFormRoomsListener();
+  removeFormInputsListener();
 };
 
 /**
@@ -632,15 +677,24 @@ var onPinEnterPress = function (evt) {
 };
 
 /**
+ * Убираем попап
+ * @param {*} evt - Событие нажатия на пин
+ * @return {void}
+ */
+var closePopup = function () {
+  removeCardPopup();
+  removePopupListeners();
+  addPinsListeners();
+};
+
+/**
  * Обработчик события нажатия ESC на попап объявления
  * @param {*} evt - Событие нажатия на пин
  * @return {void}
  */
 var onPopupEscPress = function (evt) {
   if (evt.key === ESC_KEY) {
-    removeCardPopup();
-    removePopupListeners();
-    addPinsListeners();
+    closePopup();
   }
 };
 
@@ -668,6 +722,7 @@ var removePinsListeners = function () {
  */
 var addPopupListeners = function () {
   document.addEventListener('keydown', onPopupEscPress);
+  popupCloseButton.addEventListener('click', onPopupClickClose);
 };
 
 /**
@@ -678,8 +733,16 @@ var removePopupListeners = function () {
   document.removeEventListener('keydown', onPopupEscPress);
 };
 
+/**
+ * Обработчик события нажатия мышкой на крестик попапа
+ * @return {void}
+ */
+var onPopupClickClose = function () {
+  closePopup();
+};
 
-filtersFormAddress.value = getPinCoordinates();
+
+filterFormAddress.value = getPinCoordinates();
 addMainPinListeners();
 changeCapacityRange();
 setCapacityValidation();
