@@ -8,7 +8,7 @@ var MAP_Y_MAX = 630;
 var PIN_WIDTH = 70;
 var PIN_HEIGHT = 50;
 var MIN_PRICE = 0;
-var MAX_PRICE = 9000;
+var MAX_PRICE = 1000000;
 var MIN_ROOMS = 1;
 var MAX_ROOMS = 4;
 var MIN_GUESTS = 1;
@@ -16,11 +16,6 @@ var MAX_GUESTS = 5;
 var MAIN_PIN_PSEUDO_HEIGHT = 22;
 var MIN_TITLE_LENGTH = 30;
 var MAX_TITLE_LENGTH = 100;
-var MAX_PRICE = 1000000;
-var MIN_PRICE_BUNGALO = 0;
-var MIN_PRICE_FLAT = 1000;
-var MIN_PRICE_HOUSE = 5000;
-var MIN_PRICE_PALACE = 10000;
 
 var ENTER_KEY = 'Enter';
 var ESC_KEY = 'Escape';
@@ -50,6 +45,13 @@ var HouseType = {
   BUNGALO: 'Бунгало',
   HOUSE: 'Дом',
   PALACE: 'Дворец'
+};
+
+var MinPrice = {
+  'flat': 0,
+  'bungalo': 1000,
+  'house': 5000,
+  'palace': 10000
 };
 
 var CardClass = {
@@ -597,6 +599,37 @@ var onInputFormTitle = function (evt) {
 };
 
 /**
+ * Обработчик события при изменении поля "Цена за ночь"
+ * @param {object} evt - Событие изменения поля
+ * @return {void}
+ */
+var onInputFormPrice = function (evt) {
+  if (filterFormPrice.value > MAX_PRICE) {
+    filterFormPrice.setCustomValidity('Максимальная цена за ночь - ' + MAX_PRICE + ' рублей.');
+  } else if (filterFormPrice.value < MinPrice[filterFormType.value]) {
+    evt.target.setCustomValidity('Минимальная цена за ночь на этот тип жилья - ' + MinPrice[filterFormType.value] + ' рублей.');
+  }
+};
+
+/**
+ * Обработчик события при изменении поля "Время заезда"
+ * @param {object} evt - Событие изменения поля
+ * @return {void}
+ */
+var onChangeFormTimein = function (evt) {
+  filterFormTimeout.value = evt.target.value;
+};
+
+/**
+ * Обработчик события при изменении поля "Время выезда"
+ * @param {object} evt - Событие изменения поля
+ * @return {void}
+ */
+var onChangeFormTimeout = function (evt) {
+  filterFormTimein.value = evt.target.value;
+};
+
+/**
  * Вешаем обработчик события при изменении кол-ва комнат
  * @return {void}
  */
@@ -605,9 +638,9 @@ var addFormInputsListener = function () {
 
   filterFormTitle.addEventListener('input', onInputFormTitle);
   filterFormPrice.addEventListener('input', onInputFormPrice);
-  filterFormType.addEventListener('input', onInputFormType);
-  filterFormTimein.addEventListener('input', onInputFormTimein);
-  filterFormTimeout.addEventListener('input', onInputFormTimeout);
+  filterFormType.addEventListener('change', onInputFormPrice);
+  filterFormTimein.addEventListener('change', onChangeFormTimein);
+  filterFormTimeout.addEventListener('change', onChangeFormTimeout);
 };
 
 /**
@@ -619,9 +652,9 @@ var removeFormInputsListener = function () {
 
   filterFormTitle.removeEventListener('input', onInputFormTitle);
   filterFormPrice.removeEventListener('input', onInputFormPrice);
-  filterFormType.removeEventListener('input', onInputFormType);
-  filterFormTimein.removeEventListener('input', onInputFormTimein);
-  filterFormTimeout.removeEventListener('input', onInputFormTimeout);
+  filterFormType.removeEventListener('input', onInputFormPrice);
+  filterFormTimein.removeEventListener('input', onChangeFormTimein);
+  filterFormTimeout.removeEventListener('input', onChangeFormTimeout);
 };
 
 /**
