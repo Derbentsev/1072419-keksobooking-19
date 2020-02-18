@@ -48,10 +48,10 @@ var HouseType = {
 };
 
 var MinPrice = {
-  'flat': 0,
-  'bungalo': 1000,
-  'house': 5000,
-  'palace': 10000
+  BUNGALO: 0,
+  FLAT: 1000,
+  HOUSE: 5000,
+  PALACE: 10000
 };
 
 var CardClass = {
@@ -69,7 +69,6 @@ var CardClass = {
 
 var map = document.querySelector('.map');
 var pinList = map.querySelector('.map__pins');
-var mapText = pinList.querySelector('.map__overlay');
 var pinMain = map.querySelector('.map__pin--main');
 
 var filtersSection = document.querySelector('.notice');
@@ -446,6 +445,7 @@ var toggleActivateInputs = function () {
 var toggleActivatePage = function () {
   toggleActivateMap();
   toggleActivateInputs();
+  changePricePlaceholder();
 
   if (isPageActive) {
     isPageActive = false;
@@ -526,12 +526,9 @@ var getPinCoordinates = function () {
  * @return {void}
  */
 var removeCardPopup = function () {
-  for (var k = 0; k < map.children.length; k++) {
-    if (map.children[k].classList.contains('popup')) {
-      map.children[k].remove();
-      k--;
-    }
-  }
+  map.querySelectorAll('.popup').forEach(function (item) {
+    item.remove();
+  });
 };
 
 /**
@@ -539,12 +536,9 @@ var removeCardPopup = function () {
  * @return {void}
  */
 var removePins = function () {
-  for (var i = 0; i < pinList.children.length; i++) {
-    if (pinList.children[i] !== pinMain && pinList.children[i] !== mapText) {
-      pinList.children[i].remove();
-      i--;
-    }
-  }
+  map.querySelectorAll('.map__pin:not(.map__pin--main)').forEach(function (item) {
+    item.remove();
+  });
 };
 
 /**
@@ -599,15 +593,26 @@ var onInputFormTitle = function (evt) {
 };
 
 /**
- * Обработчик события при изменении поля "Цена за ночь"
- * @param {object} evt - Событие изменения поля
+ * Изменяем плейсхолдер минимальной цены, исходя из типа жилья
  * @return {void}
  */
-var onInputFormPrice = function (evt) {
+var changePricePlaceholder = function () {
+  filterFormPrice.placeholder = MinPrice[filterFormType.value.toUpperCase()];
+};
+
+/**
+ * Обработчик события при изменении поля "Цена за ночь" и "Тип жилья"
+ * @return {void}
+ */
+var onInputFormPrice = function () {
+  changePricePlaceholder();
+
   if (filterFormPrice.value > MAX_PRICE) {
     filterFormPrice.setCustomValidity('Максимальная цена за ночь - ' + MAX_PRICE + ' рублей.');
-  } else if (filterFormPrice.value < MinPrice[filterFormType.value]) {
-    evt.target.setCustomValidity('Минимальная цена за ночь на этот тип жилья - ' + MinPrice[filterFormType.value] + ' рублей.');
+  } else if (filterFormPrice.value < MinPrice[filterFormType.value.toUpperCase()]) {
+    filterFormPrice.setCustomValidity('Минимальная цена за ночь на этот тип жилья - ' + MinPrice[filterFormType.value.toUpperCase()] + ' рублей.');
+  } else {
+    filterFormPrice.setCustomValidity('');
   }
 };
 
