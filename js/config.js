@@ -4,7 +4,7 @@
   var isPageActive = false;
   var map = document.querySelector('.map');
 
-  window.var = {
+  window.config = {
     isPageActive: isPageActive,
     map: map
   };

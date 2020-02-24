@@ -4,7 +4,7 @@
   var MIN_TITLE_LENGTH = 30;
   var MAX_TITLE_LENGTH = 100;
 
-  var TEXT_CAPACITY_VALIDATE_ERROR = 'К сожалению, вы тут не поместитесь(. Пожалуйста, выберите другое кол-во комнат';
+  var TEXT_CAPACITY_ERROR = 'К сожалению, вы тут не поместитесь(. Пожалуйста, выберите другое кол-во комнат';
 
   var RoomsCapacity = {
     '1': ['1'],
@@ -62,7 +62,7 @@
   var setCapacityValidation = function () {
     if (filterFormGuests.options.length) {
       if (RoomsCapacity[filterFormRooms.value].indexOf(filterFormGuests.value) < 0) {
-        filterFormRooms.setCustomValidity(TEXT_CAPACITY_VALIDATE_ERROR);
+        filterFormRooms.setCustomValidity(TEXT_CAPACITY_ERROR);
       } else {
         filterFormRooms.setCustomValidity('');
       }

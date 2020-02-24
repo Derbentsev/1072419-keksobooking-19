@@ -11,13 +11,13 @@
     window.form.toggleActivateInputs();
     window.form.changePricePlaceholder();
 
-    if (window.var.isPageActive) {
-      window.var.isPageActive = false;
+    if (window.config.isPageActive) {
+      window.config.isPageActive = false;
       window.form.removeFormInputsListener();
       window.form.removeResetButtonListener();
       window.pins.removePinsListeners();
     } else {
-      window.var.isPageActive = true;
+      window.config.isPageActive = true;
       window.pins.activateOffers();
       window.form.addFormInputsListener();
       window.form.addResetButtonListener();

@@ -3,14 +3,14 @@
 (function () {
   var MAIN_PIN_PSEUDO_HEIGHT = 22;
 
-  var pinMain = window.var.map.querySelector('.map__pin--main');
+  var pinMain = window.config.map.querySelector('.map__pin--main');
 
   /**
    * Определяем координаты главного пина
    * @return {void}
    */
   var getPinCoordinates = function () {
-    if (window.var.isPageActive) {
+    if (window.config.isPageActive) {
       return Math.round(pinMain.offsetTop - pinMain.offsetHeight / 2) + ', ' + Math.round(pinMain.offsetLeft + MAIN_PIN_PSEUDO_HEIGHT);
     } else {
       return Math.round(pinMain.offsetTop - pinMain.offsetHeight / 2) + ', ' + Math.round(pinMain.offsetLeft - pinMain.offsetWidth / 2);

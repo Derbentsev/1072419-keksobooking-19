@@ -6,7 +6,7 @@
    * @return {void}
    */
   var toggleActivateMap = function () {
-    window.var.map.classList.toggle('map--faded');
+    window.config.map.classList.toggle('map--faded');
   };
 
   window.map = {

@@ -9,6 +9,7 @@
   var MAX_ROOMS = 4;
   var MIN_GUESTS = 1;
   var MAX_GUESTS = 5;
+  var OFFER_COUNT = 8;
 
   var OFFER_TYPE = ['palace', 'flat', 'house', 'bungalo'];
   var CHECK_TIME = ['12:00', '13:00', '14:00'];
@@ -83,7 +84,21 @@
     return offer;
   };
 
+  /**
+   * Добавляем элемент-объявление в массив
+   * @return {object} Возвращаем массив со сгенерированными объявлениями
+   */
+  var createOffers = function () {
+    var pins = [];
+
+    for (var i = 0; i < OFFER_COUNT; i++) {
+      pins.push(createOffer(i + 1));
+    }
+
+    return pins;
+  };
+
   window.offers = {
-    createOffer: createOffer
+    createOffers: createOffers
   };
 })();

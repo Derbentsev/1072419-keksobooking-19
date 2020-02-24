@@ -91,7 +91,7 @@
   var fillCardContentPhotos = function (card, classSelector, item) {
     var cardBlock = card.querySelector(classSelector);
 
-    if (typeof item.offer.photos !== 'undefined' && item.offer.photos.length > 0) {
+    if (item.offer.photos && item.offer.photos.length > 0) {
       fillPhotosBlock(cardBlock, item);
     } else {
       cardBlock.style.display = 'none';
@@ -108,7 +108,7 @@
   var fillCardContentFeatures = function (card, classSelector, item) {
     var cardBlock = card.querySelector(classSelector);
 
-    if (typeof item.offer.features !== 'undefined' && item.offer.features.length > 0) {
+    if (item.offer.features && item.offer.features.length > 0) {
       fillFeaturesBlock(cardBlock, item);
     } else {
       cardBlock.style.display = 'none';
@@ -240,7 +240,7 @@
    * @return {void}
    */
   var removeCardPopup = function () {
-    window.var.map.querySelectorAll('.popup').forEach(function (item) {
+    window.config.map.querySelectorAll('.popup').forEach(function (item) {
       item.remove();
     });
   };
@@ -272,9 +272,9 @@
 
     var fragment = document.createDocumentFragment();
     fragment.appendChild(createPopup(offer));
-    window.var.map.appendChild(fragment);
+    window.config.map.appendChild(fragment);
 
-    popupCloseButton = window.var.map.querySelector('.popup__close');
+    popupCloseButton = window.config.map.querySelector('.popup__close');
 
     addPopupListeners();
   };
