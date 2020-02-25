@@ -113,6 +113,7 @@
     removePins: removePins,
     addPinsListeners: addPinsListeners,
     removePinsListeners: removePinsListeners,
-    activateOffers: activateOffers
+    activateOffers: activateOffers,
+    PIN_HEIGHT: PIN_HEIGHT
   };
 })();

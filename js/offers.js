@@ -99,6 +99,10 @@
   };
 
   window.offers = {
-    createOffers: createOffers
+    createOffers: createOffers,
+    MAP_Y_MIN: MAP_Y_MIN,
+    MAP_Y_MAX: MAP_Y_MAX,
+    MAP_X_MIN: MAP_X_MIN,
+    MAP_X_MAX: MAP_X_MAX
   };
 })();

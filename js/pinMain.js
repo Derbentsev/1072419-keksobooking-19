@@ -5,6 +5,10 @@
 
   var pinMain = window.config.map.querySelector('.map__pin--main');
 
+  var isDragged = false;
+
+  var startCoords;
+
   /**
    * Определяем координаты главного пина
    * @return {void}
@@ -18,15 +22,70 @@
   };
 
   /**
+   * Добавляем обработчики перемещения мыши при удерживании на главного пина
+   * @param {object} evt - Нажатие на кнопку
+   * @return {void}
+   */
+  var onMouseMove = function (evt) {
+    evt.preventDefault();
+
+    isDragged = true;
+
+    var shift = {
+      x: startCoords.x - evt.clientX,
+      y: startCoords.y - evt.clientY
+    };
+
+    startCoords = {
+      x: evt.clientX,
+      y: evt.clientY
+    };
+
+    if ((pinMain.offsetTop - shift.y) < window.offers.MAP_Y_MAX &&
+      (pinMain.offsetTop - shift.y) > window.offers.MAP_Y_MIN) {
+      pinMain.style.top = (pinMain.offsetTop - shift.y) + 'px';
+    }
+
+    if ((pinMain.offsetLeft - shift.x + window.pins.PIN_HEIGHT) < window.offers.MAP_X_MAX &&
+      (pinMain.offsetLeft - shift.x) > window.offers.MAP_X_MIN) {
+      pinMain.style.left = (pinMain.offsetLeft - shift.x) + 'px';
+    }
+
+    window.form.filterFormAddress.value = window.pinMain.getPinCoordinates();
+  };
+
+  /**
+   * Добавляем обработчики отпускания кнопки мыши при удерживании на главного пина
+   * @param {object} evt - Нажатие на кнопку
+   * @return {void}
+   */
+  var onMouseUp = function (evt) {
+    if (evt.button === 0 && !isDragged && !window.config.isPageActive) {
+      window.page.toggleActivatePage();
+      evt.stopPropagation();
+    }
+
+    isDragged = false;
+
+    document.removeEventListener('mousemove', onMouseMove);
+    document.removeEventListener('mouseup', onMouseUp);
+  };
+
+  /**
    * Добавляем обработчик нажатия левой кнопки мыши на главный пин
    * @param {object} evt - Нажатие на кнопку
    * @return {void}
    */
-  var clickOnMainPin = function (evt) {
-    if (evt.button === 0) {
-      window.page.toggleActivatePage();
-      evt.stopPropagation();
-    }
+  var onMouseDown = function (evt) {
+    evt.preventDefault();
+
+    startCoords = {
+      x: evt.clientX,
+      y: evt.clienY
+    };
+
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
   };
 
   /**
@@ -34,7 +93,7 @@
    * @param {object} evt - Нажатие на кнопку
    * @return {void}
    */
-  var pressOnMainPin = function (evt) {
+  var onMainPinPress = function (evt) {
     if (evt.key === window.const.ENTER_KEY && !window.const.isPageActive) {
       window.page.toggleActivatePage();
       evt.stopPropagation();
@@ -42,15 +101,22 @@
   };
 
   /**
+   * Добавляем обработчик клика на главный пин
+   * @param {object} evt - Нажатие на кнопку
+   * @return {void}
+   */
+  var onMainPinClick = function (evt) {
+    evt.stopPropagation();
+  };
+
+  /**
    * Добавляем обработчики нажатия клавиш и мыши на главный пин
    * @return {void}
    */
   var addMainPinListeners = function () {
-    pinMain.addEventListener('mousedown', clickOnMainPin);
-    pinMain.addEventListener('keydown', pressOnMainPin);
-    pinMain.addEventListener('click', function (evt) {
-      evt.stopPropagation();
-    });
+    pinMain.addEventListener('mousedown', onMouseDown);
+    pinMain.addEventListener('keydown', onMainPinPress);
+    pinMain.addEventListener('click', onMainPinClick);
   };
 
   /**
@@ -58,8 +124,9 @@
    * @return {void}
    */
   var removeMainPinListeners = function () {
-    pinMain.removeEventListener('mousedown', clickOnMainPin);
-    pinMain.removeEventListener('keydown', pressOnMainPin);
+    // pinMain.removeEventListener('mousedown', onMouseDown);
+    pinMain.removeEventListener('keydown', onMainPinPress);
+    pinMain.removeEventListener('click', onMainPinClick);
   };
 
 
