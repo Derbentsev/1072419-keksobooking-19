@@ -34,6 +34,33 @@
   var filterFormTimein = filterForm.querySelector('#timein');
   var filterFormTimeout = filterForm.querySelector('#timeout');
 
+  var INSERT_ELEMENT_STYLE = 'z-index: 100; margin: 0 auto; text-align: center; background-color: red';
+  var INSERT_ELEMENT_STYLE_POSITION = 'absolute';
+  var INSERT_ELEMENT_LEFT = 0;
+  var INSERT_ELEMENT_RIGHT = 0;
+  var INSERT_ELEMENT_FONT_SIZE = '30px';
+  var INSERT_ELEMENT_POSITION = 'afterbegin';
+
+  var successTemplate = document.querySelector('#success')
+    .content
+    .querySelector('.success');
+
+
+  /**
+   * Рендерим сообщение об успешной отправке данных на сервер
+   * @return {void}
+   */
+  var renderSuccessMessage = function () {
+    var successElement = successTemplate.cloneNode(true);
+    successElement.style = INSERT_ELEMENT_STYLE;
+    successElement.style.position = INSERT_ELEMENT_STYLE_POSITION;
+    successElement.style.left = INSERT_ELEMENT_LEFT;
+    successElement.style.right = INSERT_ELEMENT_RIGHT;
+    successElement.style.fontSize = INSERT_ELEMENT_FONT_SIZE;
+
+    document.body.insertAdjacentElement(INSERT_ELEMENT_POSITION, successElement);
+  };
+
   /**
    * Отключаем/включаем взаимодействие с формой
    * @return {void}
@@ -127,10 +154,10 @@
   };
 
   /**
-   * Обработчик события при изменении кол-ва комнат
+   * Резет формы и карты
    * @return {void}
    */
-  var onPressResetButton = function () {
+  var resetPage = function () {
     filterForm.reset();
     filterFormAddress.value = window.pinMain.getPinCoordinates();
     changeCapacityRange();
@@ -140,6 +167,23 @@
     window.popup.removeCardPopup();
     window.pinMain.addMainPinListeners();
     removeFormInputsListener();
+  };
+
+  /**
+   * Обработчик события при нажатии на кнопку "Очистить"
+   * @return {void}
+   */
+  var onPressResetButton = function () {
+    resetPage();
+  };
+
+  /**
+   * Обработчик события корректной отправки формы
+   * @return {void}
+   */
+  var onSuccessLoadForm = function () {
+    resetPage();
+    renderSuccessMessage();
   };
 
   /**
@@ -203,6 +247,17 @@
     resetButton.removeEventListener('click', onPressResetButton);
   };
 
+  /**
+   * Выполняем отправку данных на сервер
+   * @param {object} evt - Событие отправки формы
+   * @return {void}
+   */
+  var onFormSubmit = function (evt) {
+    evt.preventDefault();
+    window.backend.uploadOffer(new FormData(filterForm), onSuccessLoadForm);
+  };
+
+
   window.form = {
     filterFormAddress: filterFormAddress,
     addResetButtonListener: addResetButtonListener,
@@ -218,4 +273,6 @@
   changeCapacityRange();
   setCapacityValidation();
   toggleActivateInputs();
+
+  filterForm.addEventListener('submit', onFormSubmit);
 })();
