@@ -4,6 +4,13 @@
   var PIN_WIDTH = 70;
   var PIN_HEIGHT = 50;
 
+  var INSERT_ELEMENT_STYLE = 'z-index: 100; margin: 0 auto; text-align: center; background-color: red';
+  var INSERT_ELEMENT_STYLE_POSITION = 'absolute';
+  var INSERT_ELEMENT_LEFT = 0;
+  var INSERT_ELEMENT_RIGHT = 0;
+  var INSERT_ELEMENT_FONT_SIZE = '30px';
+  var INSERT_ELEMENT_POSITION = 'afterbegin';
+
   var offers = [];
 
   var pinList = window.config.map.querySelector('.map__pins');
@@ -41,6 +48,8 @@
    * @return {void}
    */
   var renderPins = function (items) {
+    offers = items;
+
     var fragment = document.createDocumentFragment();
 
     items.forEach(function (item, i) {
@@ -106,14 +115,14 @@
    */
   var onLoadOffersError = function (errorMessage) {
     var node = document.createElement('div');
-    node.style = 'x-index: 100; margin: 0 auto; text-align: center; background-color: red;';
-    node.style.position = 'absolute';
-    node.style.left = 0;
-    node.style.right = 0;
-    node.style.fontSize = '30px';
+    node.style = INSERT_ELEMENT_STYLE;
+    node.style.position = INSERT_ELEMENT_STYLE_POSITION;
+    node.style.left = INSERT_ELEMENT_LEFT;
+    node.style.right = INSERT_ELEMENT_RIGHT;
+    node.style.fontSize = INSERT_ELEMENT_FONT_SIZE;
 
     node.textContent = errorMessage;
-    document.body.insertAdjacentElement('afterbegin', node);
+    document.body.insertAdjacentElement(INSERT_ELEMENT_POSITION, node);
   };
 
   /**
@@ -121,9 +130,7 @@
    * @return {void}
    */
   var activateOffers = function () {
-    // offers = window.offers.createOffers();
     window.backend.loadOffers(onLoadOffersError, renderPins);
-    // renderPins(offers);
   };
 
   window.pins = {

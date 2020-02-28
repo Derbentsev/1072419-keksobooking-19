@@ -2,6 +2,20 @@
 
 (function () {
   var URL_LOAD = 'https://js.dump.academy/keksobooking/data';
+  var SUCESS_STATUS = 200;
+  var TIMEOUT = 5000;
+  var RESPONSE_TYPE = 'json';
+  var ERROR_MESSAGE = 'Произошла ошибка соединения с сервером';
+  var TIMEOUT_MESSAGE = 'Запрос не успел выполнится за ';
+
+  /**
+   * Создаём сообщение при таймауте
+   * @param {object} xhr - Объект XMLHTTPRequest
+   * @return {string}
+   */
+  var createTimeoutMessage = function (xhr) {
+    return TIMEOUT_MESSAGE + xhr.timeout + 'мс';
+  };
 
   /**
    * Действия при удачной загрузки с сервера
@@ -12,7 +26,7 @@
    */
   var onServerLoad = function (xhr, onError, onSuccess) {
     return function () {
-      if (xhr.status === 200) {
+      if (xhr.status === SUCESS_STATUS) {
         onSuccess(xhr.response);
       } else {
         onError('Статус ответа: ' + xhr.status + ' ' + xhr.statusText);
@@ -27,7 +41,7 @@
    */
   var onServerError = function (onError) {
     return function () {
-      onError('Произошла ошибка соединения с сервером');
+      onError(ERROR_MESSAGE);
     };
   };
 
@@ -39,14 +53,14 @@
    */
   var onServerTimeout = function (xhr, onError) {
     return function () {
-      onError('Запрос не успел выполнится за ' + xhr.timeout + 'мс');
+      onError(createTimeoutMessage(xhr));
     };
   };
 
   var loadOffers = function (onError, onSuccess) {
     var xhr = new XMLHttpRequest();
-    xhr.responseType = 'json';
-    xhr.timeout = 5000;
+    xhr.responseType = RESPONSE_TYPE;
+    xhr.timeout = TIMEOUT;
 
     xhr.addEventListener('load', onServerLoad(xhr, onError, onSuccess));
     xhr.addEventListener('error', onServerError(onError));
