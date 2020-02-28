@@ -101,12 +101,29 @@
   };
 
   /**
+   * Отрисовываем элемент с текстоим ошибки для пользователя
+   * @param {string} errorMessage - Текст ошибки, который будет выведен пользователю
+   */
+  var onLoadOffersError = function (errorMessage) {
+    var node = document.createElement('div');
+    node.style = 'x-index: 100; margin: 0 auto; text-align: center; background-color: red;';
+    node.style.position = 'absolute';
+    node.style.left = 0;
+    node.style.right = 0;
+    node.style.fontSize = '30px';
+
+    node.textContent = errorMessage;
+    document.body.insertAdjacentElement('afterbegin', node);
+  };
+
+  /**
    * Отрисовывает карточки предложений
    * @return {void}
    */
   var activateOffers = function () {
-    offers = window.offers.createOffers();
-    renderPins(offers);
+    // offers = window.offers.createOffers();
+    window.backend.loadOffers(onLoadOffersError, renderPins);
+    // renderPins(offers);
   };
 
   window.pins = {
