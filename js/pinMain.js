@@ -2,6 +2,7 @@
 
 (function () {
   var MAIN_PIN_PSEUDO_HEIGHT = 22;
+  var MAIN_PIN_SIZE = 65;
 
   var pinMain = window.config.map.querySelector('.map__pin--main');
 
@@ -42,12 +43,12 @@
     };
 
     if ((pinMain.offsetTop - shift.y) < window.offers.MAP_Y_MAX &&
-      (pinMain.offsetTop - shift.y) > window.offers.MAP_Y_MIN) {
+      (pinMain.offsetTop - shift.y + MAIN_PIN_SIZE) > window.offers.MAP_Y_MIN) {
       pinMain.style.top = (pinMain.offsetTop - shift.y) + 'px';
     }
 
-    if ((pinMain.offsetLeft - shift.x + window.pins.PIN_HEIGHT) < window.offers.MAP_X_MAX &&
-      (pinMain.offsetLeft - shift.x) > window.offers.MAP_X_MIN) {
+    if ((pinMain.offsetLeft - shift.x + MAIN_PIN_SIZE / 2) < window.offers.MAP_X_MAX &&
+      (pinMain.offsetLeft - shift.x + MAIN_PIN_SIZE / 2) > window.offers.MAP_X_MIN) {
       pinMain.style.left = (pinMain.offsetLeft - shift.x) + 'px';
     }
 
