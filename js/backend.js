@@ -9,44 +9,6 @@
   var ERROR_MESSAGE = 'Произошла ошибка соединения с сервером';
   var TIMEOUT_MESSAGE = 'Запрос не успел выполнится за ';
 
-  var INSERT_ELEMENT_STYLE = 'z-index: 100; margin: 0 auto; text-align: center; background-color: red';
-  var INSERT_ELEMENT_STYLE_POSITION = 'absolute';
-  var INSERT_ELEMENT_LEFT = 0;
-  var INSERT_ELEMENT_RIGHT = 0;
-  var INSERT_ELEMENT_FONT_SIZE = '30px';
-  var INSERT_ELEMENT_POSITION = 'afterbegin';
-
-  var successTemplate = document.querySelector('#success')
-    .content
-    .querySelector('.success');
-
-  var errorTemplate = document.querySelector('#error')
-    .content
-    .querySelector('.error');
-
-
-  /**
-   * Рендерим сообщение об успешной отправке данных на сервер
-   * @return {void}
-   */
-  var renderSuccessMessage = function () {
-    var successElement = successTemplate.cloneNode(true);
-    successElement.style = INSERT_ELEMENT_STYLE;
-    successElement.style.position = INSERT_ELEMENT_STYLE_POSITION;
-    successElement.style.left = INSERT_ELEMENT_LEFT;
-    successElement.style.right = INSERT_ELEMENT_RIGHT;
-    successElement.style.fontSize = INSERT_ELEMENT_FONT_SIZE;
-
-    document.body.insertAdjacentElement(INSERT_ELEMENT_POSITION, successElement);
-  };
-
-  /**
-   * Рендерим сообщение об ошибке при отправке данных на сервер
-   * @return {void}
-   */
-  var renderErrorMessage = function () {
-    var errorElement = errorTemplate.cloneNode(true);
-  };
 
   /**
    * Создаём сообщение при таймауте
@@ -126,14 +88,18 @@
    * Отправляем данные с фильтра объявлений на сервер
    * @param {object} data - Данные, которые загружаем на сервер
    * @param {object} onSuccess - Функция, которая срабатывает при успешной отправке данных на сервер
+   * @param {object} onError - Функция, которая срабатывает при НЕуспешной отправке данных на сервер
    * @return {void}
    */
-  var uploadOffer = function (data, onSuccess) {
+  var uploadOffer = function (data, onSuccess, onError) {
     var xhr = new XMLHttpRequest();
     xhr.responeType = RESPONSE_TYPE;
     xhr.timeout = TIMEOUT;
 
-    xhr.addEventListener('load', onSuccess(), {
+    xhr.addEventListener('load', onSuccess, {
+      once: true
+    });
+    xhr.addEventListener('error', onError, {
       once: true
     });
 

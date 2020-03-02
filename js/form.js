@@ -3,8 +3,11 @@
 (function () {
   var MIN_TITLE_LENGTH = 30;
   var MAX_TITLE_LENGTH = 100;
+  var ESC_KEY = 'Escape';
 
   var TEXT_CAPACITY_ERROR = 'К сожалению, вы тут не поместитесь(. Пожалуйста, выберите другое кол-во комнат';
+
+  var INSERT_ELEMENT_POSITION = 'afterbegin';
 
   var RoomsCapacity = {
     '1': ['1'],
@@ -34,17 +37,49 @@
   var filterFormTimein = filterForm.querySelector('#timein');
   var filterFormTimeout = filterForm.querySelector('#timeout');
 
-  var INSERT_ELEMENT_STYLE = 'z-index: 100; margin: 0 auto; text-align: center; background-color: red';
-  var INSERT_ELEMENT_STYLE_POSITION = 'absolute';
-  var INSERT_ELEMENT_LEFT = 0;
-  var INSERT_ELEMENT_RIGHT = 0;
-  var INSERT_ELEMENT_FONT_SIZE = '30px';
-  var INSERT_ELEMENT_POSITION = 'afterbegin';
+  var documentMain = document.querySelector('main');
 
   var successTemplate = document.querySelector('#success')
     .content
     .querySelector('.success');
 
+  var errorTemplate = document.querySelector('#error')
+    .content
+    .querySelector('.error');
+
+
+  /**
+   * Удаляем элемент из вёрстки
+   * @param {object} element - Нода удаляемого элемента
+   * @return {void}
+   */
+  var elementRemove = function (element) {
+    element.remove();
+  };
+
+  /**
+   * При клике на окне удаляем сообщение о статусе отправки данных
+   * @param {object} element - Нода удаляемого элемента
+   * @return {void}
+   */
+  var onDocumentClick = function (element) {
+    return function () {
+      elementRemove(element);
+    };
+  };
+
+  /**
+   * При нажатии на ESC удаляем сообщение о статусе отправки данных
+   * @param {object} element - Нода удаляемого элемента
+   * @return {void}
+   */
+  var onDocumentKeydown = function (element) {
+    return function (evt) {
+      if (evt.key === ESC_KEY) {
+        elementRemove(element);
+      }
+    };
+  };
 
   /**
    * Рендерим сообщение об успешной отправке данных на сервер
@@ -52,13 +87,30 @@
    */
   var renderSuccessMessage = function () {
     var successElement = successTemplate.cloneNode(true);
-    successElement.style = INSERT_ELEMENT_STYLE;
-    successElement.style.position = INSERT_ELEMENT_STYLE_POSITION;
-    successElement.style.left = INSERT_ELEMENT_LEFT;
-    successElement.style.right = INSERT_ELEMENT_RIGHT;
-    successElement.style.fontSize = INSERT_ELEMENT_FONT_SIZE;
-
     document.body.insertAdjacentElement(INSERT_ELEMENT_POSITION, successElement);
+
+    document.addEventListener('click', onDocumentClick(successElement), {
+      once: true
+    });
+    document.addEventListener('keydown', onDocumentKeydown(successElement), {
+      once: true
+    });
+  };
+
+  /**
+   * Рендерим сообщение об ошибке при отправке данных на сервер
+   * @return {void}
+   */
+  var renderErrorMessage = function () {
+    var errorElement = errorTemplate.cloneNode(true);
+    documentMain.insertAdjacentElement(INSERT_ELEMENT_POSITION, errorElement);
+
+    document.addEventListener('click', onDocumentClick(errorElement), {
+      once: true
+    });
+    document.addEventListener('keydown', onDocumentKeydown(errorElement), {
+      once: true
+    });
   };
 
   /**
@@ -187,6 +239,14 @@
   };
 
   /**
+   * Обработчик события НЕкорректной отправки формы
+   * @return {void}
+   */
+  var onErrorLoadForm = function () {
+    renderErrorMessage();
+  };
+
+  /**
    * Обработчик события при изменении кол-ва комнат
    * @return {void}
    */
@@ -254,7 +314,7 @@
    */
   var onFormSubmit = function (evt) {
     evt.preventDefault();
-    window.backend.uploadOffer(new FormData(filterForm), onSuccessLoadForm);
+    window.backend.uploadOffer(new FormData(filterForm), onSuccessLoadForm, onErrorLoadForm);
   };
 
 
