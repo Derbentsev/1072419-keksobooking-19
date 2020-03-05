@@ -333,6 +333,5 @@
   changeCapacityRange();
   setCapacityValidation();
   toggleActivateInputs();
-
   filterForm.addEventListener('submit', onFormSubmit);
 })();

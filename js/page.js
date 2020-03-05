@@ -16,6 +16,7 @@
       window.form.removeFormInputsListener();
       window.form.removeResetButtonListener();
       window.pins.removePinsListeners();
+      window.pinMain.setCoordsMainPinOnStart();
     } else {
       window.config.isPageActive = true;
       window.pins.activateOffers();
