@@ -3,6 +3,7 @@
 (function () {
   var PIN_WIDTH = 70;
   var PIN_HEIGHT = 50;
+  var PINS_COUNT = 5;
 
   var INSERT_ELEMENT_STYLE = 'z-index: 100; margin: 0 auto; text-align: center; background-color: red';
   var INSERT_ELEMENT_STYLE_POSITION = 'absolute';
@@ -51,10 +52,9 @@
     offers = items;
 
     var fragment = document.createDocumentFragment();
-
-    items.forEach(function (item, i) {
-      fragment.appendChild(renderPin(item, i));
-    });
+    for (var i = 0; i < PINS_COUNT; i++) {
+      fragment.appendChild(renderPin(items[i], i));
+    }
 
     pinList.appendChild(fragment);
   };
