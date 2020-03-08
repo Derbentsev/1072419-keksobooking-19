@@ -25,7 +25,7 @@
    * Сортируем массив предложений
    * @return {object} Отсортированный массив предложений
    */
-  var sortedOffers = function () {
+  var filterOffers = function () {
     var sortedOffers = window.pins.offers.sort(function (offer1, offer2) {
       var rankDiff = getRank(offer2) - getRank(offer1);
       return rankDiff;
@@ -37,7 +37,6 @@
   };
 
   window.similarOffer = {
-    filteredOffers: sortedOffers,
-    filterOffers: sortedOffers
+    filterOffers: filterOffers
   };
 })();

@@ -281,7 +281,7 @@
    * @return {void}
    */
   var removeFormInputsListener = function () {
-    filterForm.removeEventListener('change', onChangeForm)
+    filterForm.removeEventListener('change', onChangeForm);
     filterFormRooms.removeEventListener('change', onChangeFormRooms);
     filterFormTitle.removeEventListener('input', onInputFormTitle);
     filterFormPrice.removeEventListener('input', onInputFormPrice);
