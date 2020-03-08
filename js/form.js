@@ -185,6 +185,8 @@
     } else {
       filterFormPrice.setCustomValidity('');
     }
+
+    window.form.filterFormType = filterFormType;
   };
 
   /**
@@ -255,11 +257,17 @@
     setCapacityValidation();
   };
 
+  var onChangeForm = function () {
+    window.popup.closePopup();
+    window.similarOffer.filterOffers();
+  };
+
   /**
    * Вешаем обработчик события при изменении кол-ва комнат
    * @return {void}
    */
   var addFormInputsListener = function () {
+    filterForm.addEventListener('change', onChangeForm);
     filterFormRooms.addEventListener('change', onChangeFormRooms);
     filterFormTitle.addEventListener('input', onInputFormTitle);
     filterFormPrice.addEventListener('input', onInputFormPrice);
@@ -273,6 +281,7 @@
    * @return {void}
    */
   var removeFormInputsListener = function () {
+    filterForm.removeEventListener('change', onChangeForm)
     filterFormRooms.removeEventListener('change', onChangeFormRooms);
     filterFormTitle.removeEventListener('input', onInputFormTitle);
     filterFormPrice.removeEventListener('input', onInputFormPrice);
@@ -326,7 +335,8 @@
     changePricePlaceholder: changePricePlaceholder,
     removeFormInputsListener: removeFormInputsListener,
     addFormInputsListener: addFormInputsListener,
-    toggleActivateForm: toggleActivateForm
+    toggleActivateForm: toggleActivateForm,
+    filterFormType: filterFormType
   };
 
   filterFormAddress.value = window.pinMain.getPinCoordinates();
