@@ -26,7 +26,7 @@
       window.pins.addPinsListeners();
     }
 
-    window.form.filterFormAddress.value = window.pinMain.getPinCoordinates();
+    window.form.offerFormAddress.value = window.pinMain.getPinCoordinates();
   };
 
   window.page = {

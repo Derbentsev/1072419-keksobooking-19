@@ -7,7 +7,7 @@
    */
   var filterOffers = function () {
     var filteredOffers = window.pins.offers.filter(function (offer) {
-      return offer.offer.type === window.form.filterFormType.value;
+      return offer.offer.type === window.form.filtersType.value;
     });
 
     return filteredOffers;

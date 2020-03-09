@@ -33,7 +33,7 @@
     pinMain.style.top = startCoordsMainPinY + 'px';
     pinMain.style.left = startCoordsMainPinX + 'px';
 
-    window.form.filterFormAddress.value = window.pinMain.getPinCoordinates();
+    window.form.offerFormAddress.value = window.pinMain.getPinCoordinates();
   };
 
   /**
@@ -66,7 +66,7 @@
       pinMain.style.left = (pinMain.offsetLeft - shift.x) + 'px';
     }
 
-    window.form.filterFormAddress.value = window.pinMain.getPinCoordinates();
+    window.form.offerFormAddress.value = window.pinMain.getPinCoordinates();
   };
 
   /**
