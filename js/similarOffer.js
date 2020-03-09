@@ -1,8 +1,6 @@
 'use strict';
 
 (function () {
-  var filteredOffers = [];
-
   /**
    * Сортируем массив предложений
    * @return {object} Отсортированный массив предложений
