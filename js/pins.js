@@ -51,7 +51,7 @@
     removePins();
 
     var fragment = document.createDocumentFragment();
-    for (var i = 0; i < window.const.PINS_COUNT; i++) {
+    for (var i = 0; (i < window.const.PINS_COUNT) && (items[i]); i++) {
       fragment.appendChild(renderPin(items[i], i));
     }
 
