@@ -12,6 +12,7 @@
   var INSERT_ELEMENT_POSITION = 'afterbegin';
 
   var offers = [];
+  var filteredOffers = [];
 
   var pinList = window.config.map.querySelector('.map__pins');
 
@@ -46,14 +47,19 @@
    * @return {void}
    */
   var renderPins = function (items) {
-    window.pins.offers = items;
+    if (window.pins.offers.length === 0) {
+      window.pins.offers = items.slice();
+    }
+    window.pins.filteredOffers = items.slice();
 
     removePins();
 
     var fragment = document.createDocumentFragment();
-    for (var i = 0; (i < window.const.PINS_COUNT) && (items[i]); i++) {
-      fragment.appendChild(renderPin(items[i], i));
-    }
+    items.forEach(function (item, i) {
+      if (i < window.const.PINS_COUNT) {
+        fragment.appendChild(renderPin(item, i));
+      }
+    });
 
     pinList.appendChild(fragment);
   };
@@ -65,7 +71,7 @@
    */
   var onPinClick = function (evt) {
     if (evt.target.parentElement.dataset.key) {
-      window.popup.renderPopup(window.pins.offers[evt.target.parentElement.dataset.key]);
+      window.popup.renderPopup(window.pins.filteredOffers[evt.target.parentElement.dataset.key]);
     }
   };
 
@@ -76,7 +82,7 @@
    */
   var onPinEnterPress = function (evt) {
     if (evt.key === window.const.ENTER_KEY) {
-      window.popup.renderPopup(window.pins.offers[evt.target.dataset.key]);
+      window.popup.renderPopup(window.pins.filteredOffers[evt.target.dataset.key]);
     }
   };
 
@@ -138,6 +144,7 @@
     removePinsListeners: removePinsListeners,
     activateOffers: activateOffers,
     offers: offers,
+    filteredOffers: filteredOffers,
     renderPins: renderPins,
     PIN_HEIGHT: PIN_HEIGHT
   };

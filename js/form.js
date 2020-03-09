@@ -259,7 +259,8 @@
 
   var onChangeForm = function () {
     window.popup.closePopup();
-    window.similarOffer.filterOffers();
+    var filteredOffers = window.similarOffer.filterOffers();
+    window.pins.renderPins(filteredOffers);
   };
 
   /**

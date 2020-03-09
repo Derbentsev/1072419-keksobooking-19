@@ -1,6 +1,8 @@
 'use strict';
 
 (function () {
+  var filteredOffers = [];
+
   /**
    * Сортируем массив предложений
    * @return {object} Отсортированный массив предложений
@@ -9,8 +11,6 @@
     var filteredOffers = window.pins.offers.filter(function (offer) {
       return offer.offer.type === window.form.filterFormType.value;
     });
-
-    window.pins.renderPins(filteredOffers);
 
     return filteredOffers;
   };
