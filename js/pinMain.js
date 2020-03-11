@@ -10,6 +10,9 @@
 
   var startCoords;
 
+  var startCoordsMainPinX = pinMain.offsetLeft;
+  var startCoordsMainPinY = pinMain.offsetTop;
+
   /**
    * Определяем координаты главного пина
    * @return {void}
@@ -20,6 +23,17 @@
     } else {
       return Math.round(pinMain.offsetTop - pinMain.offsetHeight / 2) + ', ' + Math.round(pinMain.offsetLeft - pinMain.offsetWidth / 2);
     }
+  };
+
+  /**
+   * Возвращаем главный пин на свои стартовые координаты
+   * @return {void}
+   */
+  var setCoordsMainPinOnStart = function () {
+    pinMain.style.top = startCoordsMainPinY + 'px';
+    pinMain.style.left = startCoordsMainPinX + 'px';
+
+    window.form.offerFormAddress.value = window.pinMain.getPinCoordinates();
   };
 
   /**
@@ -52,7 +66,7 @@
       pinMain.style.left = (pinMain.offsetLeft - shift.x) + 'px';
     }
 
-    window.form.filterFormAddress.value = window.pinMain.getPinCoordinates();
+    window.form.offerFormAddress.value = window.pinMain.getPinCoordinates();
   };
 
   /**
@@ -125,7 +139,6 @@
    * @return {void}
    */
   var removeMainPinListeners = function () {
-    // pinMain.removeEventListener('mousedown', onMouseDown);
     pinMain.removeEventListener('keydown', onMainPinPress);
     pinMain.removeEventListener('click', onMainPinClick);
   };
@@ -134,7 +147,8 @@
   window.pinMain = {
     getPinCoordinates: getPinCoordinates,
     addMainPinListeners: addMainPinListeners,
-    removeMainPinListeners: removeMainPinListeners
+    removeMainPinListeners: removeMainPinListeners,
+    setCoordsMainPinOnStart: setCoordsMainPinOnStart
   };
 
   addMainPinListeners();

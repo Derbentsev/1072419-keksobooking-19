@@ -12,6 +12,7 @@
   var INSERT_ELEMENT_POSITION = 'afterbegin';
 
   var offers = [];
+  var filteredOffers = [];
 
   var pinList = window.config.map.querySelector('.map__pins');
 
@@ -29,15 +30,13 @@
     var pinElement = pinTemplate.cloneNode(true);
     var pinImage = pinElement.querySelector('img');
 
+    pinElement.dataset.key = i;
     pinElement.style.left = item.location.x + PIN_WIDTH + 'px';
     pinElement.style.top = item.location.y + PIN_HEIGHT + 'px';
 
     pinImage.style.src = item.author.avatar;
     pinImage.style.alt = item.offer.title;
-
     pinImage.src = item.author.avatar;
-
-    pinElement.dataset.key = i;
 
     return pinElement;
   };
@@ -48,11 +47,15 @@
    * @return {void}
    */
   var renderPins = function (items) {
-    offers = items;
+    if (window.pins.offers.length === 0) {
+      window.pins.offers = items.slice();
+    }
+    window.pins.filteredOffers = items.slice(0, window.const.PINS_COUNT - 1);
+
+    removePins();
 
     var fragment = document.createDocumentFragment();
-
-    items.forEach(function (item, i) {
+    window.pins.filteredOffers.forEach(function (item, i) {
       fragment.appendChild(renderPin(item, i));
     });
 
@@ -61,23 +64,23 @@
 
   /**
    * Обработчик события нажатия на пин объявления
-   * @param {*} evt - Событие нажатия на пин
+   * @param {object} evt - Событие нажатия на пин
    * @return {void}
    */
   var onPinClick = function (evt) {
     if (evt.target.parentElement.dataset.key) {
-      window.popup.renderPopup(offers[evt.target.parentElement.dataset.key]);
+      window.popup.renderPopup(window.pins.filteredOffers[evt.target.parentElement.dataset.key]);
     }
   };
 
   /**
    * Обработчик события нажатия Enter на пин объявления
-   * @param {*} evt - Событие нажатия на пин
+   * @param {object} evt - Событие нажатия на пин
    * @return {void}
    */
   var onPinEnterPress = function (evt) {
     if (evt.key === window.const.ENTER_KEY) {
-      window.popup.renderPopup(offers[evt.target.dataset.key]);
+      window.popup.renderPopup(window.pins.filteredOffers[evt.target.dataset.key]);
     }
   };
 
@@ -138,6 +141,9 @@
     addPinsListeners: addPinsListeners,
     removePinsListeners: removePinsListeners,
     activateOffers: activateOffers,
+    offers: offers,
+    filteredOffers: filteredOffers,
+    renderPins: renderPins,
     PIN_HEIGHT: PIN_HEIGHT
   };
 })();

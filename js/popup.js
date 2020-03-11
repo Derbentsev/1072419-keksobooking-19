@@ -281,6 +281,7 @@
 
   window.popup = {
     removeCardPopup: removeCardPopup,
-    renderPopup: renderPopup
+    renderPopup: renderPopup,
+    closePopup: closePopup
   };
 })();

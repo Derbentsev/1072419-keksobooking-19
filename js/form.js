@@ -23,19 +23,22 @@
     PALACE: 10000
   };
 
+  var fieldsets = document.querySelectorAll('fieldset');
+
+  var filters = document.querySelector('.map__filters-container form');
+  var filtersType = filters.querySelector('#housing-type');
+
   var filtersSection = document.querySelector('.notice');
   var resetButton = filtersSection.querySelector('.ad-form__reset');
-
-  var fieldsets = document.querySelectorAll('fieldset');
-  var filterForm = filtersSection.querySelector('.ad-form');
-  var filterFormAddress = filtersSection.querySelector('#address');
-  var filterFormRooms = filtersSection.querySelector('#room_number');
-  var filterFormGuests = filtersSection.querySelector('#capacity');
-  var filterFormTitle = filterForm.querySelector('#title');
-  var filterFormPrice = filterForm.querySelector('#price');
-  var filterFormType = filterForm.querySelector('#type');
-  var filterFormTimein = filterForm.querySelector('#timein');
-  var filterFormTimeout = filterForm.querySelector('#timeout');
+  var offerForm = filtersSection.querySelector('.ad-form');
+  var offerFormAddress = filtersSection.querySelector('#address');
+  var offerFormRooms = filtersSection.querySelector('#room_number');
+  var offerFormGuests = filtersSection.querySelector('#capacity');
+  var offerFormTitle = offerForm.querySelector('#title');
+  var offerFormPrice = offerForm.querySelector('#price');
+  var offerFormType = offerForm.querySelector('#type');
+  var offerFormTimein = offerForm.querySelector('#timein');
+  var offerFormTimeout = offerForm.querySelector('#timeout');
 
   var documentMain = document.querySelector('main');
 
@@ -118,7 +121,7 @@
    * @return {void}
    */
   var toggleActivateForm = function () {
-    filterForm.classList.toggle('ad-form--disabled');
+    offerForm.classList.toggle('ad-form--disabled');
   };
 
   /**
@@ -126,10 +129,10 @@
    * @return {void}
    */
   var changeCapacityRange = function () {
-    if (filterFormGuests.options.length) {
-      [].forEach.call(filterFormGuests.options, function (item) {
-        item.selected = (RoomsCapacity[filterFormRooms.value][0] === item.value) ? true : false;
-        item.disabled = (RoomsCapacity[filterFormRooms.value].indexOf(item.value) >= 0) ? false : true;
+    if (offerFormGuests.options.length) {
+      [].forEach.call(offerFormGuests.options, function (item) {
+        item.selected = (RoomsCapacity[offerFormRooms.value][0] === item.value) ? true : false;
+        item.disabled = (RoomsCapacity[offerFormRooms.value].indexOf(item.value) >= 0) ? false : true;
       });
     }
   };
@@ -139,11 +142,11 @@
    * @return {void}
    */
   var setCapacityValidation = function () {
-    if (filterFormGuests.options.length) {
-      if (RoomsCapacity[filterFormRooms.value].indexOf(filterFormGuests.value) < 0) {
-        filterFormRooms.setCustomValidity(TEXT_CAPACITY_ERROR);
+    if (offerFormGuests.options.length) {
+      if (RoomsCapacity[offerFormRooms.value].indexOf(offerFormGuests.value) < 0) {
+        offerFormRooms.setCustomValidity(TEXT_CAPACITY_ERROR);
       } else {
-        filterFormRooms.setCustomValidity('');
+        offerFormRooms.setCustomValidity('');
       }
     }
   };
@@ -168,7 +171,7 @@
    * @return {void}
    */
   var changePricePlaceholder = function () {
-    filterFormPrice.placeholder = MinPrice[filterFormType.value.toUpperCase()];
+    offerFormPrice.placeholder = MinPrice[offerFormType.value.toUpperCase()];
   };
 
   /**
@@ -178,13 +181,15 @@
   var onInputFormPrice = function () {
     changePricePlaceholder();
 
-    if (filterFormPrice.value > window.const.MAX_PRICE) {
-      filterFormPrice.setCustomValidity('Максимальная цена за ночь - ' + window.const.MAX_PRICE + ' рублей.');
-    } else if (filterFormPrice.value < MinPrice[filterFormType.value.toUpperCase()]) {
-      filterFormPrice.setCustomValidity('Минимальная цена за ночь на этот тип жилья - ' + MinPrice[filterFormType.value.toUpperCase()] + ' рублей.');
+    if (offerFormPrice.value > window.const.MAX_PRICE) {
+      offerFormPrice.setCustomValidity('Максимальная цена за ночь - ' + window.const.MAX_PRICE + ' рублей.');
+    } else if (offerFormPrice.value < MinPrice[offerFormType.value.toUpperCase()]) {
+      offerFormPrice.setCustomValidity('Минимальная цена за ночь на этот тип жилья - ' + MinPrice[offerFormType.value.toUpperCase()] + ' рублей.');
     } else {
-      filterFormPrice.setCustomValidity('');
+      offerFormPrice.setCustomValidity('');
     }
+
+    window.form.offerFormType = offerFormType;
   };
 
   /**
@@ -193,7 +198,7 @@
    * @return {void}
    */
   var onChangeFormTimein = function (evt) {
-    filterFormTimeout.value = evt.target.value;
+    offerFormTimeout.value = evt.target.value;
   };
 
   /**
@@ -202,7 +207,7 @@
    * @return {void}
    */
   var onChangeFormTimeout = function (evt) {
-    filterFormTimein.value = evt.target.value;
+    offerFormTimein.value = evt.target.value;
   };
 
   /**
@@ -210,8 +215,8 @@
    * @return {void}
    */
   var resetPage = function () {
-    filterForm.reset();
-    filterFormAddress.value = window.pinMain.getPinCoordinates();
+    offerForm.reset();
+    offerFormAddress.value = window.pinMain.getPinCoordinates();
     changeCapacityRange();
     setCapacityValidation();
     window.page.toggleActivatePage();
@@ -255,30 +260,38 @@
     setCapacityValidation();
   };
 
-  /**
-   * Вешаем обработчик события при изменении кол-ва комнат
-   * @return {void}
-   */
-  var addFormInputsListener = function () {
-    filterFormRooms.addEventListener('change', onChangeFormRooms);
-    filterFormTitle.addEventListener('input', onInputFormTitle);
-    filterFormPrice.addEventListener('input', onInputFormPrice);
-    filterFormType.addEventListener('change', onInputFormPrice);
-    filterFormTimein.addEventListener('change', onChangeFormTimein);
-    filterFormTimeout.addEventListener('change', onChangeFormTimeout);
+  var onChangeForm = function () {
+    window.popup.closePopup();
+    var filteredOffers = window.similarOffer.filterOffers();
+    window.pins.renderPins(filteredOffers);
   };
 
   /**
-   * Удаляем обработчик события при изменении кол-ва комнат
+   * Вешаем обработчики события на изменения полей Вашего объявления
+   * @return {void}
+   */
+  var addFormInputsListener = function () {
+    filters.addEventListener('change', onChangeForm);
+    offerFormRooms.addEventListener('change', onChangeFormRooms);
+    offerFormTitle.addEventListener('input', onInputFormTitle);
+    offerFormPrice.addEventListener('input', onInputFormPrice);
+    offerFormType.addEventListener('change', onInputFormPrice);
+    offerFormTimein.addEventListener('change', onChangeFormTimein);
+    offerFormTimeout.addEventListener('change', onChangeFormTimeout);
+  };
+
+  /**
+   * Удаляем обработчики события на изменения полей Вашего объявления
    * @return {void}
    */
   var removeFormInputsListener = function () {
-    filterFormRooms.removeEventListener('change', onChangeFormRooms);
-    filterFormTitle.removeEventListener('input', onInputFormTitle);
-    filterFormPrice.removeEventListener('input', onInputFormPrice);
-    filterFormType.removeEventListener('input', onInputFormPrice);
-    filterFormTimein.removeEventListener('input', onChangeFormTimein);
-    filterFormTimeout.removeEventListener('input', onChangeFormTimeout);
+    filters.removeEventListener('change', onChangeForm);
+    offerFormRooms.removeEventListener('change', onChangeFormRooms);
+    offerFormTitle.removeEventListener('input', onInputFormTitle);
+    offerFormPrice.removeEventListener('input', onInputFormPrice);
+    offerFormType.removeEventListener('input', onInputFormPrice);
+    offerFormTimein.removeEventListener('input', onChangeFormTimein);
+    offerFormTimeout.removeEventListener('input', onChangeFormTimeout);
   };
 
   /**
@@ -314,25 +327,25 @@
    */
   var onFormSubmit = function (evt) {
     evt.preventDefault();
-    window.backend.uploadOffer(new FormData(filterForm), onSuccessLoadForm, onErrorLoadForm);
+    window.backend.uploadOffer(new FormData(offerForm), onSuccessLoadForm, onErrorLoadForm);
   };
 
 
   window.form = {
-    filterFormAddress: filterFormAddress,
+    offerFormAddress: offerFormAddress,
     addResetButtonListener: addResetButtonListener,
     removeResetButtonListener: removeResetButtonListener,
     toggleActivateInputs: toggleActivateInputs,
     changePricePlaceholder: changePricePlaceholder,
     removeFormInputsListener: removeFormInputsListener,
     addFormInputsListener: addFormInputsListener,
-    toggleActivateForm: toggleActivateForm
+    toggleActivateForm: toggleActivateForm,
+    filtersType: filtersType
   };
 
-  filterFormAddress.value = window.pinMain.getPinCoordinates();
+  offerFormAddress.value = window.pinMain.getPinCoordinates();
   changeCapacityRange();
   setCapacityValidation();
   toggleActivateInputs();
-
-  filterForm.addEventListener('submit', onFormSubmit);
+  offerForm.addEventListener('submit', onFormSubmit);
 })();
