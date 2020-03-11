@@ -50,7 +50,7 @@
     if (window.pins.offers.length === 0) {
       window.pins.offers = items.slice();
     }
-    window.pins.filteredOffers = items.slice(0, window.const.PINS_COUNT - 1);
+    window.pins.filteredOffers = items.slice(0, window.const.PINS_COUNT);
 
     removePins();
 
