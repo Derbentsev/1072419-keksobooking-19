@@ -3,10 +3,10 @@
 (function () {
   var MIN_TITLE_LENGTH = 30;
   var MAX_TITLE_LENGTH = 100;
+  var DEBOUNCE_TIME = 500;
+
   var ESC_KEY = 'Escape';
-
   var TEXT_CAPACITY_ERROR = 'К сожалению, вы тут не поместитесь(. Пожалуйста, выберите другое кол-во комнат';
-
   var INSERT_ELEMENT_POSITION = 'afterbegin';
 
   var RoomsCapacity = {
@@ -27,6 +27,11 @@
 
   var filters = document.querySelector('.map__filters-container form');
   var filtersType = filters.querySelector('#housing-type');
+  var filterPrice = filters.querySelector('#housing-price');
+  var filterRooms = filters.querySelector('#housing-rooms');
+  var filterGuests = filters.querySelector('#housing-guests');
+  var filterFeaturesFieldset = filters.querySelector('#housing-features');
+  var filterFeatures = filterFeaturesFieldset.querySelectorAll('input[type = "checkbox"]');
 
   var filtersSection = document.querySelector('.notice');
   var resetButton = filtersSection.querySelector('.ad-form__reset');
@@ -49,6 +54,8 @@
   var errorTemplate = document.querySelector('#error')
     .content
     .querySelector('.error');
+
+  var lastTimeout;
 
 
   /**
@@ -260,10 +267,21 @@
     setCapacityValidation();
   };
 
+  /**
+   * Обработчик события изменения фильтров
+   * @return {void}
+   */
   var onChangeForm = function () {
     window.popup.closePopup();
-    var filteredOffers = window.similarOffer.filterOffers();
-    window.pins.renderPins(filteredOffers);
+
+    if (lastTimeout) {
+      window.clearTimeout(lastTimeout);
+    }
+
+    lastTimeout = window.setTimeout(function () {
+      var filteredOffers = window.similarOffer.filterOffers();
+      window.pins.renderPins(filteredOffers);
+    }, DEBOUNCE_TIME);
   };
 
   /**
@@ -340,7 +358,12 @@
     removeFormInputsListener: removeFormInputsListener,
     addFormInputsListener: addFormInputsListener,
     toggleActivateForm: toggleActivateForm,
-    filtersType: filtersType
+    filtersType: filtersType,
+    filterPrice: filterPrice,
+    filterRooms: filterRooms,
+    filterGuests: filterGuests,
+    filterFeaturesFieldset: filterFeaturesFieldset,
+    filterFeatures: filterFeatures
   };
 
   offerFormAddress.value = window.pinMain.getPinCoordinates();
