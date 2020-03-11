@@ -50,15 +50,13 @@
     if (window.pins.offers.length === 0) {
       window.pins.offers = items.slice();
     }
-    window.pins.filteredOffers = items.slice();
+    window.pins.filteredOffers = items.slice(0, window.const.PINS_COUNT - 1);
 
     removePins();
 
     var fragment = document.createDocumentFragment();
-    items.forEach(function (item, i) {
-      if (i < window.const.PINS_COUNT) {
-        fragment.appendChild(renderPin(item, i));
-      }
+    window.pins.filteredOffers.forEach(function (item, i) {
+      fragment.appendChild(renderPin(item, i));
     });
 
     pinList.appendChild(fragment);

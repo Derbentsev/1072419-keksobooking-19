@@ -6,9 +6,17 @@
    * @return {object} Отсортированный массив предложений
    */
   var filterOffers = function () {
-    var filteredOffers = window.pins.offers.filter(function (offer) {
-      return offer.offer.type === window.form.filtersType.value;
-    });
+    var filteredOffers = [];
+
+    for (var i = 0; i < window.pins.offers.length; i++) {
+      if (filteredOffers.length > window.const.PINS_COUNT) {
+        break;
+      }
+
+      if (window.pins.offers[i].offer.type === window.form.filtersType.value) {
+        filteredOffers.push(window.pins.offers[i]);
+      }
+    }
 
     return filteredOffers;
   };
