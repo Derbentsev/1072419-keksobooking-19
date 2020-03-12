@@ -32,7 +32,7 @@
 
     pinElement.dataset.key = i;
     pinElement.style.left = item.location.x + PIN_WIDTH + 'px';
-    pinElement.style.top = item.location.y + PIN_HEIGHT + 'px';
+    pinElement.style.top = item.location.y - PIN_HEIGHT + 'px';
 
     pinImage.style.src = item.author.avatar;
     pinImage.style.alt = item.offer.title;
