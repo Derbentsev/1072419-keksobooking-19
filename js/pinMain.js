@@ -61,8 +61,8 @@
       pinMain.style.top = (pinMain.offsetTop - shift.y) + 'px';
     }
 
-    if ((pinMain.offsetLeft - shift.x + MAIN_PIN_SIZE / 2) < window.map.MAP_X_MAX &&
-      (pinMain.offsetLeft - shift.x + MAIN_PIN_SIZE / 2) > window.map.MAP_X_MIN) {
+    if ((pinMain.offsetLeft - shift.x + MAIN_PIN_SIZE) < window.map.MAP_X_MAX &&
+      (pinMain.offsetLeft - shift.x) > window.map.MAP_X_MIN) {
       pinMain.style.left = (pinMain.offsetLeft - shift.x) + 'px';
     }
 
