@@ -17,6 +17,7 @@
       window.form.removeResetButtonListener();
       window.pins.removePinsListeners();
       window.pinMain.setCoordsMainPinOnStart();
+      window.photo.removePhotoListener();
     } else {
       window.config.isPageActive = true;
       window.pins.activateOffers();
@@ -24,6 +25,7 @@
       window.form.addResetButtonListener();
       window.pinMain.removeMainPinListeners();
       window.pins.addPinsListeners();
+      window.photo.addPhotoListener();
     }
 
     window.form.offerFormAddress.value = window.pinMain.getPinCoordinates();
