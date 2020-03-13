@@ -32,7 +32,7 @@
 
     pinElement.dataset.key = i;
     pinElement.style.left = item.location.x + PIN_WIDTH + 'px';
-    pinElement.style.top = item.location.y + PIN_HEIGHT + 'px';
+    pinElement.style.top = item.location.y - PIN_HEIGHT + 'px';
 
     pinImage.style.src = item.author.avatar;
     pinImage.style.alt = item.offer.title;
@@ -50,6 +50,7 @@
     if (window.pins.offers.length === 0) {
       window.pins.offers = items.slice();
     }
+
     window.pins.filteredOffers = items.slice(0, window.const.PINS_COUNT);
 
     removePins();

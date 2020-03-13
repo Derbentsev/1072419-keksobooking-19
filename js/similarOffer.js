@@ -6,18 +6,18 @@
    * @return {object} Отсортированный массив предложений
    */
   var filterOffers = function () {
-    var price = {
-      'low': {
-        minPrice: 0,
-        maxPrice: 9999
+    var Price = {
+      LOW: {
+        min: 0,
+        max: 9999
       },
-      'middle': {
-        minPrice: 10000,
-        maxPrice: 49999
+      MIDDLE: {
+        min: 10000,
+        max: 49999
       },
-      'high': {
-        minPrice: 50000,
-        maxPrice: 10000000000000
+      HIGH: {
+        min: 50000,
+        max: 10000000000000
       }
     };
 
@@ -36,8 +36,8 @@
       if ((window.form.filtersType.value === 'any' ||
           window.pins.offers[i].offer.type === window.form.filtersType.value) &&
         (window.form.filterPrice.value === 'any' ||
-          window.pins.offers[i].offer.price >= price[window.form.filterPrice.value].minPrice &&
-          window.pins.offers[i].offer.price <= price[window.form.filterPrice.value].maxPrice) &&
+          window.pins.offers[i].offer.price >= Price[window.form.filterPrice.value.toUpperCase()].min &&
+          window.pins.offers[i].offer.price <= Price[window.form.filterPrice.value.toUpperCase()].max) &&
         (window.form.filterRooms.value === 'any' ||
           window.pins.offers[i].offer.rooms.toString() === window.form.filterRooms.value.toString()) &&
         (window.form.filterGuests.value === 'any' ||
