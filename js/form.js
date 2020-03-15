@@ -138,8 +138,8 @@
   var changeCapacityRange = function () {
     if (offerFormGuests.options.length) {
       [].forEach.call(offerFormGuests.options, function (item) {
-        item.selected = (RoomsCapacity[offerFormRooms.value][0] === item.value) ? true : false;
-        item.disabled = (RoomsCapacity[offerFormRooms.value].indexOf(item.value) >= 0) ? false : true;
+        item.selected = RoomsCapacity[offerFormRooms.value][0] === item.value;
+        item.disabled = RoomsCapacity[offerFormRooms.value].indexOf(item.value) < 0;
       });
     }
   };
@@ -223,6 +223,7 @@
    */
   var resetPage = function () {
     offerForm.reset();
+    window.photo.resetPhoto();
     offerFormAddress.value = window.pinMain.getPinCoordinates();
     changeCapacityRange();
     setCapacityValidation();

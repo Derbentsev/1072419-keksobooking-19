@@ -1,6 +1,8 @@
 'use strict';
 
 (function () {
+  var OFFER_PREVIEW_SRC = 'img/muffin-grey.svg';
+
   var avatarFileChooser = document.querySelector('.ad-form__field input[type=file]');
   var avatarPreview = document.querySelector('.ad-form-header__preview img');
   var offerFileChooser = document.querySelector('.ad-form__upload input[type=file]');
@@ -52,9 +54,17 @@
     offerFileChooser.removeEventListener('change', onPhotoChange(offerFileChooser, offerPreview));
   };
 
+  /**
+   * 
+   */
+  var resetPhoto = function() {
+    offerPreview.src = OFFER_PREVIEW_SRC;
+  };
+
 
   window.photo = {
     addPhotoListener: addPhotoListener,
-    removePhotoListener: removePhotoListener
+    removePhotoListener: removePhotoListener,
+    resetPhoto: resetPhoto
   };
 })();

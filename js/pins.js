@@ -85,6 +85,11 @@
     }
   };
 
+  /* var togglePinsListeners = function (handler) {
+    pinList[handler]('click', onPinClick);
+    pinList[handler]('keydown', onPinEnterPress);
+  }; */
+
   /**
    * Добавляем отслеживание кликов на пины объявлений
    * @return {void}
@@ -92,6 +97,7 @@
   var addPinsListeners = function () {
     pinList.addEventListener('click', onPinClick);
     pinList.addEventListener('keydown', onPinEnterPress);
+    /* togglePinsListeners(.addEventListener); */
   };
 
   /**

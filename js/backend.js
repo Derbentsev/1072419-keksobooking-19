@@ -8,6 +8,8 @@
   var RESPONSE_TYPE = 'json';
   var ERROR_MESSAGE = 'Произошла ошибка соединения с сервером';
   var TIMEOUT_MESSAGE = 'Запрос не успел выполнится за ';
+  var REQUEST_GET = 'GET';
+  var REQUEST_POST = 'POST';
 
 
   /**
@@ -80,7 +82,7 @@
       once: true
     });
 
-    xhr.open('GET', URL_LOAD);
+    xhr.open(REQUEST_GET, URL_LOAD);
     xhr.send();
   };
 
@@ -103,7 +105,7 @@
       once: true
     });
 
-    xhr.open('POST', URL_UPLOAD);
+    xhr.open(REQUEST_POST, URL_UPLOAD);
     xhr.send(data);
   };
 
