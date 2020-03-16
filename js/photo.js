@@ -2,6 +2,7 @@
 
 (function () {
   var OFFER_PREVIEW_SRC = 'img/muffin-grey.svg';
+  var AVATAR_PREVIEW_SRC = 'img/muffin-grey.svg';
 
   var avatarFileChooser = document.querySelector('.ad-form__field input[type=file]');
   var avatarPreview = document.querySelector('.ad-form-header__preview img');
@@ -49,11 +50,12 @@
   };
 
   /**
-   * Возвращаем путь до фото оффера в первоначальное состояние
+   * Возвращаем путь до фото оффера и аватара в первоначальное состояние
    * @return {void}
    */
   var resetPhoto = function () {
     offerPreview.src = OFFER_PREVIEW_SRC;
+    avatarPreview.src = AVATAR_PREVIEW_SRC;
   };
 
 
