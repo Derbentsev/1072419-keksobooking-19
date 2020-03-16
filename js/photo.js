@@ -16,55 +16,49 @@
    * @return {void}
    */
   var onPhotoChange = function (fileChooser, preview) {
-    return function () {
-      var file = fileChooser.files[0];
-      var fileName = file.name.toLowerCase();
+    var file = fileChooser.files[0];
+    var fileName = file.name.toLowerCase();
 
-      var matches = window.const.PHOTO_FILE_TYPES.some(function (it) {
-        return fileName.endsWith(it);
+    var matches = window.const.PHOTO_FILE_TYPES.some(function (it) {
+      return fileName.endsWith(it);
+    });
+
+    if (matches) {
+      var reader = new FileReader();
+
+      reader.addEventListener('load', function () {
+        preview.src = reader.result;
       });
 
-      if (matches) {
-        var reader = new FileReader();
-
-        reader.addEventListener('load', function () {
-          preview.src = reader.result;
-        });
-
-        reader.readAsDataURL(file);
-      }
-    };
+      reader.readAsDataURL(file);
+    }
   };
 
   /**
-   * Вешаем обработчики события изменения фото
+   * Переключатель отслеживания загрузки фотографий пользователя и оффера
+   * @param {string} handler - Название поля объекта
    * @return {void}
    */
-  var addPhotoListener = function () {
-    avatarFileChooser.addEventListener('change', onPhotoChange(avatarFileChooser, avatarPreview));
-    offerFileChooser.addEventListener('change', onPhotoChange(offerFileChooser, offerPreview));
+  var togglePhotoListener = function (handler) {
+    avatarFileChooser[handler]('change', function () {
+      onPhotoChange(avatarFileChooser, avatarPreview);
+    });
+    offerFileChooser[handler]('change', function () {
+      onPhotoChange(offerFileChooser, offerPreview);
+    });
   };
 
   /**
-   * Удаляем обработчики события изменения фото
+   * Возвращаем путь до фото оффера в первоначальное состояние
    * @return {void}
    */
-  var removePhotoListener = function () {
-    avatarFileChooser.removeEventListener('change', onPhotoChange(avatarFileChooser, avatarPreview));
-    offerFileChooser.removeEventListener('change', onPhotoChange(offerFileChooser, offerPreview));
-  };
-
-  /**
-   * 
-   */
-  var resetPhoto = function() {
+  var resetPhoto = function () {
     offerPreview.src = OFFER_PREVIEW_SRC;
   };
 
 
   window.photo = {
-    addPhotoListener: addPhotoListener,
-    removePhotoListener: removePhotoListener,
+    togglePhotoListener: togglePhotoListener,
     resetPhoto: resetPhoto
   };
 })();

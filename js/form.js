@@ -73,22 +73,19 @@
    * @return {void}
    */
   var onDocumentClick = function (element) {
-    return function () {
-      elementRemove(element);
-    };
+    elementRemove(element);
   };
 
   /**
    * При нажатии на ESC удаляем сообщение о статусе отправки данных
    * @param {object} element - Нода удаляемого элемента
+   * @param {object} evt - Событие нажатия клавиши
    * @return {void}
    */
-  var onDocumentKeydown = function (element) {
-    return function (evt) {
-      if (evt.key === ESC_KEY) {
-        elementRemove(element);
-      }
-    };
+  var onDocumentKeydown = function (element, evt) {
+    if (evt.key === ESC_KEY) {
+      elementRemove(element);
+    }
   };
 
   /**
@@ -99,10 +96,14 @@
     var successElement = successTemplate.cloneNode(true);
     document.body.insertAdjacentElement(INSERT_ELEMENT_POSITION, successElement);
 
-    document.addEventListener('click', onDocumentClick(successElement), {
+    document.addEventListener('click', function () {
+      onDocumentClick(successElement);
+    }, {
       once: true
     });
-    document.addEventListener('keydown', onDocumentKeydown(successElement), {
+    document.addEventListener('keydown', function (evt) {
+      onDocumentKeydown(successElement, evt);
+    }, {
       once: true
     });
   };

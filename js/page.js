@@ -17,7 +17,8 @@
       window.form.removeResetButtonListener();
       window.pins.removePinsListeners();
       window.pinMain.setCoordsMainPinOnStart();
-      window.photo.removePhotoListener();
+      // window.photo.removePhotoListener();
+      window.photo.togglePhotoListener('removeEventListener');
     } else {
       window.config.isPageActive = true;
       window.pins.activateOffers();
@@ -25,7 +26,8 @@
       window.form.addResetButtonListener();
       window.pinMain.removeMainPinListeners();
       window.pins.addPinsListeners();
-      window.photo.addPhotoListener();
+      // window.photo.addPhotoListener();
+      window.photo.togglePhotoListener('addEventListener');
     }
 
     window.form.offerFormAddress.value = window.pinMain.getPinCoordinates();

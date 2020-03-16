@@ -85,19 +85,22 @@
     }
   };
 
-  /* var togglePinsListeners = function (handler) {
+  /**
+   * Переключатель отслеживания кликов и нажатий на пины
+   * @param {string} handler - Название поля объекта
+   * @return {void}
+   */
+  var togglePinsListeners = function (handler) {
     pinList[handler]('click', onPinClick);
     pinList[handler]('keydown', onPinEnterPress);
-  }; */
+  };
 
   /**
    * Добавляем отслеживание кликов на пины объявлений
    * @return {void}
    */
   var addPinsListeners = function () {
-    pinList.addEventListener('click', onPinClick);
-    pinList.addEventListener('keydown', onPinEnterPress);
-    /* togglePinsListeners(.addEventListener); */
+    togglePinsListeners('addEventListener');
   };
 
   /**
@@ -105,8 +108,7 @@
    * @return {void}
    */
   var removePinsListeners = function () {
-    pinList.removeEventListener('click', onPinClick);
-    pinList.removeEventListener('keydown', onPinEnterPress);
+    togglePinsListeners('removeEventListener');
   };
 
   /**

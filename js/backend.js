@@ -3,7 +3,7 @@
 (function () {
   var URL_LOAD = 'https://js.dump.academy/keksobooking/data';
   var URL_UPLOAD = 'https://js.dump.academy/keksobooking';
-  var SUCESS_STATUS = 200;
+  var SUCCESS_STATUS = 200;
   var TIMEOUT = 5000;
   var RESPONSE_TYPE = 'json';
   var ERROR_MESSAGE = 'Произошла ошибка соединения с сервером';
@@ -29,13 +29,11 @@
    * @return {void}
    */
   var onServerLoad = function (xhr, onError, onSuccess) {
-    return function () {
-      if (xhr.status === SUCESS_STATUS) {
-        onSuccess(xhr.response);
-      } else {
-        onError('Статус ответа: ' + xhr.status + ' ' + xhr.statusText);
-      }
-    };
+    if (xhr.status === SUCCESS_STATUS) {
+      onSuccess(xhr.response);
+    } else {
+      onError('Статус ответа: ' + xhr.status + ' ' + xhr.statusText);
+    }
   };
 
   /**
@@ -44,9 +42,7 @@
    * @return {void}
    */
   var onServerError = function (onError) {
-    return function () {
-      onError(ERROR_MESSAGE);
-    };
+    onError(ERROR_MESSAGE);
   };
 
   /**
@@ -56,9 +52,7 @@
    * @return {void}
    */
   var onServerTimeout = function (xhr, onError) {
-    return function () {
-      onError(createTimeoutMessage(xhr));
-    };
+    onError(createTimeoutMessage(xhr));
   };
 
   /**
@@ -72,13 +66,20 @@
     xhr.responseType = RESPONSE_TYPE;
     xhr.timeout = TIMEOUT;
 
-    xhr.addEventListener('load', onServerLoad(xhr, onError, onSuccess), {
+    xhr.addEventListener('load', function () {
+      onServerLoad(xhr, onError, onSuccess);
+    }, {
       once: true
     });
-    xhr.addEventListener('error', onServerError(onError), {
+
+    xhr.addEventListener('error', function () {
+      onServerError(onError);
+    }, {
       once: true
     });
-    xhr.addEventListener('timeout', onServerTimeout(xhr, onError), {
+    xhr.addEventListener('timeout', function () {
+      onServerTimeout(xhr, onError);
+    }, {
       once: true
     });
 
